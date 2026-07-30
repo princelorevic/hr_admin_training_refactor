@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- Bootstrap Icons CDN (Ito ang gagamitin natin pamalit sa mga nag-404 na SVG) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manly Plastics Inc. | Learning Management System</title>
+
+    <meta name="description"
+        content="Manly Plastics, Inc. Learning Management System - One Stop Plastic Products Specialist Employee Training Platform">
+    <meta name="keywords"
+        content="LMS, Manly Plastics, Learning Management System, Employee Training, Manufacturing Training">
+
+    <meta name="author" content="Manly Plastics Inc.">
+
+    <!-- ========================================= -->
+    <!-- Favicon -->
+    <!-- ========================================= -->
+
+    <link rel="icon" href="assets/images/manlylogo.png">
+
+    <!-- ========================================= -->
+    <!-- Google Font -->
+    <!-- ========================================= -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- ========================================= -->
+    <!-- CSS -->
+    <!-- ========================================= -->
+
+    <link rel="stylesheet" href="website/public/css/style.css">
+    <link rel="stylesheet" href="website/public/css/animations.css">
+    <link rel="stylesheet" href="website/public/css/components.css">
+    <link rel="stylesheet" href="website/public/css/responsive.css">
+    <link rel="stylesheet" href="website/public/css/variables.css">
+
+</head>
+
+<body>
+
+    <!-- ========================================= -->
+    <!-- Loading Screen -->
+    <!-- ========================================= -->
+
+    <div id="loading-screen">
+        <div class="loading-content">
+            <!-- Pinalitan ang path para mag-match sa Manlylogo.png -->
+            <img src="assets/images/manlylogo.png" alt="Manly Plastics Logo" class="loading-logo" style="max-width: 150px; margin-bottom: 20px;">
+            <h2>MANLY PLASTICS LMS</h2>
+            <p>Initializing Platform...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- Header -->
+    <!-- ========================================= -->
+
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <!-- Logo -->
+                <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 10px;">
+                    <img src="assets/images/manlylogo.png" alt="Manly Plastics Logo" style="height: 40px;">
+                    <span style="font-weight: 700; color: #003366;">Manly Plastics LMS</span>
+                </a>
+
+                <!-- Navigation (Using smooth scroll anchors) -->
+                <ul class="nav-links">
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#solutions">Solutions</a></li>
+                    <li><a href="#statistics">Statistics</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+
+                <!-- Login Button -->
+                <a href="website/login.html" class="login-btn" style="background: #e30613; color: white;">Login Portal</a>
+
+                <!-- Mobile Menu -->
+                <button class="menu-toggle" style="background: none; border: none; font-size: 24px; color: #003366;">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ========================================= -->
+    <!-- Main -->
+    <!-- ========================================= -->
+
+    <main>
+
+        <!-- ========================================= -->
+        <!-- Hero -->
+        <!-- ========================================= -->
+
+        <section id="hero">
+            <div class="container hero-container">
+                <!-- Left -->
+                <div class="hero-content">
+                    <span class="hero-badge" style="background: #e30613; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 15px;">
+                        One Stop Plastic Products Specialist
+                    </span>
+                    <h1>
+                        Empowering Learning.<br>
+                        Building Better Teams.
+                    </h1>
+                    <p>
+                        The official Learning Management System of <strong>Manly Plastics, Inc.</strong> Designed to simplify employee training, monitor manufacturing protocols, improve compliance, and develop a highly skilled workforce in the plastics industry.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#features" class="primary-btn" style="background: #003366; color: white;">Explore Features</a>
+                        <a href="website/login.html" class="secondary-btn" style="border: 2px solid #003366; color: #003366;">Employee Login</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <h3 style="color: #e30613;">100%</h3>
+                            <p>Compliance Ready</p>
+                        </div>
+                        <div class="hero-stat">
+                            <h3 style="color: #e30613;">24/7</h3>
+                            <p>Accessibility</p>
+                        </div>
+                        <div class="hero-stat">
+                            <h3 style="color: #e30613;">Secure</h3>
+                            <p>Learning Platform</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right (Dashboard Mockup) -->
+                <div class="hero-image">
+                    <div class="hero-dashboard">
+                        <div class="dashboard-header" style="background: #003366; color: white;">
+                            <h3>Learning Dashboard Overview</h3>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>Injection Molding Protocols</h4>
+                            <div class="progress-bar"><div class="progress-fill progress-training" style="background: #e30613;"></div></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>Safety & Compliance Assessment</h4>
+                            <div class="progress-bar"><div class="progress-fill progress-assessment" style="background: #003366;"></div></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>Quality Control Certificates</h4>
+                            <div class="progress-bar"><div class="progress-fill progress-certificate" style="background: #10b981;"></div></div>
+                        </div>
+                        <div class="dashboard-summary">
+                            <div class="summary-item"><h2 style="color: #003366;">128</h2><span>Active Trainees</span></div>
+                            <div class="summary-item"><h2 style="color: #003366;">32</h2><span>Standard Courses</span></div>
+                            <div class="summary-item"><h2 style="color: #003366;">97%</h2><span>Overall Completion</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================= -->
+        <!-- About Section -->
+        <!-- ========================================= -->
+
+        <section id="about" style="background: #f8fafc; padding: 60px 0;">
+            <div class="container about-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
+
+                <!-- Right -->
+                <div class="about-content">
+                    <span class="section-tag" style="color: #e30613; font-weight: bold; text-transform: uppercase;">About Manly Plastics LMS</span>
+                    <h2 style="color: #003366; font-size: 32px; margin: 15px 0;">A Modern Learning Platform Built for Manufacturing Excellence</h2>
+                    <p style="color: #4b5563; line-height: 1.6;">
+                        Manly LMS is tailored specifically for the operational needs of Manly Plastics, Inc. Whether you're an HR supervisor, fleet node trainer, or a frontline employee, this platform helps manage learning efficiently from one centralized portal.
+                    </p>
+                    <div class="about-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+                        <div class="about-card" style="background: white; padding: 20px; border-radius: 8px; border-top: 4px solid #e30613;">
+                            <i class="bi bi-bullseye" style="font-size: 2.5rem; color: #e30613;"></i>
+                            <h3 style="color: #003366; margin: 10px 0;">Mission</h3>
+                            <p style="font-size: 13px; color: #64748b;">Deliver a reliable learning platform that improves employee growth and strict adherence to manufacturing standards.</p>
+                        </div>
+                        <div class="about-card" style="background: white; padding: 20px; border-radius: 8px; border-top: 4px solid #003366;">
+                            <i class="bi bi-eye" style="font-size: 2.5rem; color: #003366;"></i>
+                            <h3 style="color: #003366; margin: 10px 0;">Vision</h3>
+                            <p style="font-size: 13px; color: #64748b;">Become a trusted digital learning backbone for Manly Plastics through innovation, simplicity, and AI integration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================= -->
+        <!-- Features -->
+        <!-- ========================================= -->
+
+        <section id="features" style="padding: 60px 0;">
+            <div class="container">
+                <div class="section-title" style="text-align: center; max-width: 600px; margin: 0 auto 40px;">
+                    <span class="section-tag" style="color: #e30613; font-weight: bold;">Core Features</span>
+                    <h2 style="color: #003366;">Everything You Need In One Learning Platform</h2>
+                    <p style="color: #64748b;">Powerful tools designed for HR, administrators, operational trainers, and factory personnel.</p>
+                </div>
+
+                <!-- Pinalitan ang mga error images ng Bootstrap Icons -->
+                <div class="feature-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
+                    <div class="feature-card" style="background: #f8fafc; padding: 30px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                        <i class="bi bi-journal-bookmark-fill" style="font-size: 2.5rem; color: #003366; margin-bottom: 15px; display: block;"></i>
+                        <h3 style="color: #003366; margin-bottom: 10px;">Course Management</h3>
+                        <p style="font-size: 14px; color: #475569;">Create, organize, publish, and manage manufacturing learning courses.</p>
+                    </div>
+                    <div class="feature-card" style="background: #f8fafc; padding: 30px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                        <i class="bi bi-person-workspace" style="font-size: 2.5rem; color: #e30613; margin-bottom: 15px; display: block;"></i>
+                        <h3 style="color: #003366; margin-bottom: 10px;">Training Programs</h3>
+                        <p style="font-size: 14px; color: #475569;">Manage onboarding, safety compliance, and operational development.</p>
+                    </div>
+                    <div class="feature-card" style="background: #f8fafc; padding: 30px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                        <i class="bi bi-card-checklist" style="font-size: 2.5rem; color: #003366; margin-bottom: 15px; display: block;"></i>
+                        <h3 style="color: #003366; margin-bottom: 10px;">AI Assessments</h3>
+                        <p style="font-size: 14px; color: #475569;">Build quizzes, practical examinations, and automated KPI scoring.</p>
+                    </div>
+                    <div class="feature-card" style="background: #f8fafc; padding: 30px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                        <i class="bi bi-bar-chart-line" style="font-size: 2.5rem; color: #e30613; margin-bottom: 15px; display: block;"></i>
+                        <h3 style="color: #003366; margin-bottom: 10px;">Analytics</h3>
+                        <p style="font-size: 14px; color: #475569;">Monitor factory personnel progress, completion rates, and reports.</p>
+                    </div>
+                    <div class="feature-card" style="background: #f8fafc; padding: 30px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                        <i class="bi bi-award" style="font-size: 2.5rem; color: #003366; margin-bottom: 15px; display: block;"></i>
+                        <h3 style="color: #003366; margin-bottom: 10px;">Certificates</h3>
+                        <p style="font-size: 14px; color: #475569;">Automatically generate validation certificates after course completion.</p>
+                    </div>
+                    <div class="feature-card" style="background: #f8fafc; padding: 30px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                        <i class="bi bi-shield-check" style="font-size: 2.5rem; color: #e30613; margin-bottom: 15px; display: block;"></i>
+                        <h3 style="color: #003366; margin-bottom: 10px;">Secure Platform</h3>
+                        <p style="font-size: 14px; color: #475569;">Role-based access controls and protected corporate training records.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================= -->
+        <!-- Solutions -->
+        <!-- ========================================= -->
+
+        <section id="solutions" style="background: #003366; color: white; padding: 60px 0;">
+            <div class="container">
+                <div class="section-title" style="text-align: center; margin-bottom: 40px;">
+                    <span class="section-tag" style="color: #f1f5f9; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 12px;">Solutions</span>
+                    <h2 style="margin-top: 10px;">Designed For Every User Level</h2>
+                </div>
+
+                <div class="solution-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
+                    <div class="solution-card" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+                        <i class="bi bi-people" style="font-size: 3rem; color: #fff;"></i>
+                        <h3 style="margin: 15px 0 10px;">Human Resources</h3>
+                        <p style="font-size: 14px; color: #cbd5e1;">Manage employee learning, compliance tracking, factory onboarding, and development programs.</p>
+                    </div>
+                    <div class="solution-card" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+                        <i class="bi bi-person-badge" style="font-size: 3rem; color: #e30613;"></i>
+                        <h3 style="margin: 15px 0 10px;">System Administrator</h3>
+                        <p style="font-size: 14px; color: #cbd5e1;">Configure the platform, manage department users, assign AI KPIs, and control system settings.</p>
+                    </div>
+                    <div class="solution-card" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.2);">
+                        <i class="bi bi-person-check" style="font-size: 3rem; color: #fff;"></i>
+                        <h3 style="margin: 15px 0 10px;">Employee Portal</h3>
+                        <p style="font-size: 14px; color: #cbd5e1;">Access assigned modules, safety assessments, certificates, and view real-time AI performance feedback.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================= -->
+        <!-- Statistics -->
+        <!-- ========================================= -->
+
+        <section id="statistics" style="padding: 60px 0; background: #f8fafc;">
+            <div class="container">
+                <div class="section-title" style="text-align: center; max-width: 600px; margin: 0 auto 40px;">
+                    <span class="section-tag" style="color: #e30613; font-weight: bold;">Platform Statistics</span>
+                    <h2 style="color: #003366;">Empowering Organizations Through Learning</h2>
+                </div>
+
+                <div class="statistics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
+                    <div class="stat-card" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h2 class="counter" data-target="500" style="font-size: 40px; color: #003366; margin: 0;">500+</h2>
+                        <p style="color: #64748b; font-size: 14px; font-weight: bold; text-transform: uppercase;">Employees Trained</p>
+                    </div>
+                    <div class="stat-card" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h2 class="counter" data-target="120" style="font-size: 40px; color: #e30613; margin: 0;">120</h2>
+                        <p style="color: #64748b; font-size: 14px; font-weight: bold; text-transform: uppercase;">Curriculum Tracks</p>
+                    </div>
+                    <div class="stat-card" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h2 class="counter" data-target="98" style="font-size: 40px; color: #003366; margin: 0;">98%</h2>
+                        <p style="color: #64748b; font-size: 14px; font-weight: bold; text-transform: uppercase;">Compliance Rate</p>
+                    </div>
+                    <div class="stat-card" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h2 class="counter" data-target="24" style="font-size: 40px; color: #e30613; margin: 0;">24/7</h2>
+                        <p style="color: #64748b; font-size: 14px; font-weight: bold; text-transform: uppercase;">AI KPI Support</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================= -->
+        <!-- Contact -->
+        <!-- ========================================= -->
+
+        <section id="contact" style="padding: 60px 0;">
+            <div class="container contact-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                <div class="contact-content">
+                    <span class="section-tag" style="color: #e30613; font-weight: bold;">Contact HR</span>
+                    <h2 style="color: #003366;">Need Assistance With Your Account?</h2>
+                    <p style="color: #4b5563;">For lost passwords, account provisioning, or AI agent issues, please contact the Manly Plastics HR department directly.</p>
+
+                    <div class="contact-info" style="margin-top: 30px; display: flex; flex-direction: column; gap: 15px;">
+                        <div class="contact-item" style="display: flex; align-items: center; gap: 15px;">
+                            <i class="bi bi-envelope" style="font-size: 1.5rem; color: #003366;"></i>
+                            <span style="font-weight: 500; color: #334155;">angelenemae.posadas@gmail.com</span>
+                        </div>
+                        <div class="contact-item" style="display: flex; align-items: center; gap: 15px;">
+                            <i class="bi bi-telephone" style="font-size: 1.5rem; color: #003366;"></i>
+                            <span style="font-weight: 500; color: #334155;"> 09483115938</span>
+                        </div>
+                        <div class="contact-item" style="display: flex; align-items: center; gap: 15px;">
+                            <i class="bi bi-geo-alt" style="font-size: 1.5rem; color: #003366;"></i>
+                            <span style="font-weight: 500; color: #334155;">404 M.H Del Pilar, Maysilo Malabon, 1477 Philippines</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form" style="background: #f8fafc; padding: 30px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <form style="display: flex; flex-direction: column; gap: 15px;">
+                        <input type="text" placeholder="Employee Full Name" required style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Inter';">
+                        <input type="email" placeholder="Corporate Email Address" required style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Inter';">
+                        <input type="text" placeholder="Department (e.g. Manufacturing Fleet Node)" required style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Inter';">
+                        <textarea rows="4" placeholder="How can we help you?" required style="padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: 'Inter'; resize: none;"></textarea>
+                        <button type="submit" class="primary-btn" style="background: #003366; color: white; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================= -->
+    <!-- Footer -->
+    <!-- ========================================= -->
+
+    <footer style="background: #0f172a; color: #94a3b8; padding: 40px 0 20px;">
+        <div class="container footer-container" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 30px;">
+            <div class="footer-brand">
+                <img src="assets/images/manlylogo.png" alt="Manly Plastics Logo" style="height: 40px; filter: brightness(0) invert(1); margin-bottom: 15px;">
+                <h3 style="color: white; margin-bottom: 10px;">Manly Plastics, Inc. LMS</h3>
+                <p style="font-size: 13px; line-height: 1.6;">
+                    The official digital training backbone for Manly Plastics operations. One Stop Plastic Products Specialist.
+                </p>
+            </div>
+            <div class="footer-links">
+                <h4 style="color: white; margin-bottom: 15px;">Quick Links</h4>
+                <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+                    <li><a href="#hero" style="color: #94a3b8; text-decoration: none;">Home</a></li>
+                    <li><a href="#about" style="color: #94a3b8; text-decoration: none;">About</a></li>
+                    <li><a href="#features" style="color: #94a3b8; text-decoration: none;">Platform Features</a></li>
+                    <li><a href="#contact" style="color: #94a3b8; text-decoration: none;">HR Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4 style="color: white; margin-bottom: 15px;">System</h4>
+                <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+                    <li><a href="login.html" style="color: #94a3b8; text-decoration: none;">Employee Login Portal</a></li>
+                    <li><a href="#" style="color: #94a3b8; text-decoration: none;">Privacy Policy</a></li>
+                    <li><a href="#" style="color: #94a3b8; text-decoration: none;">Internal Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright" style="text-align: center; border-top: 1px solid #1e293b; padding-top: 20px; font-size: 12px;">
+            <p>
+                © 2026 Manly Plastics, Inc. All Rights Reserved. Powered by LMS Enterprise Platform.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ========================================= -->
+    <!-- JavaScript -->
+    <!-- ========================================= -->
+    <script src="website/public/js/app.js"></script>
+
+</body>
+</html>

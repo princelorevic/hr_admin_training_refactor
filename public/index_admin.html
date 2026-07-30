@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manly Plastics Enterprise LMS Platform - Fixed Modals & BI Build</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/ai_provisioning.css">
+  <link rel="stylesheet" href="assets/css/enterprise_design.css">
+
+  <!-- Favicon / Tab Logo -->
+  <link rel="icon" type="image/png" href="assets/images/manlylogo.png">
+  <style>
+    /* GLOBAL MASTER RESET */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+    body { background: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
+    .container { display: flex; min-height: 100vh; }
+    .hidden { display: none !important; }
+
+    /* TALENTLMS NARROW SIDEBAR COMPONENT PANEL */
+    .sidebar { 
+      width: 65px; background: #003366; color: #ffffff; 
+      display: flex; flex-direction: column; align-items: center; padding: 15px 0; 
+      border-right: 1px solid #002244; position: relative; z-index: 10; 
+    }
+    .sidebar-icon-item { 
+      width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; 
+      margin-bottom: 8px; border-radius: 6px; cursor: pointer; font-size: 18px; 
+      color: #cbd5e1; transition: all 0.2s; position: relative; 
+    }
+    .sidebar-icon-item:hover { background: #004488; color: #ffffff; }
+    .sidebar-icon-item.active { background: #0055aa; color: #ffffff; }
+    .sidebar-img-icon { width: 20px; height: 20px; object-fit: contain; pointer-events: none; }
+
+    .sidebar-icon-item .tooltip-text { 
+      visibility: hidden; width: 140px; background-color: #0f172a; color: #fff; 
+      text-align: left; padding: 8px 12px; border-radius: 4px; position: absolute; 
+      z-index: 100; left: 55px; top: 50%; transform: translateY(-50%); 
+      font-size: 11px; font-weight: 500; opacity: 0; transition: opacity 0.2s; 
+    }
+    .sidebar-icon-item:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+    /* TOP MASTER HEADER BANNER */
+    .master-header-banner { height: 65px; background: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
+    .brand-cluster { display: flex; align-items: center; gap: 15px; }
+    .mpi-official-logo-box {
+      width: 155px; height: 75px;
+      background-image: url('./assets/images/logo.png');
+      background-repeat: no-repeat; background-position: center; background-size: contain;
+    }
+    .brand-title { font-size: 8px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .header-center-search-box input { width: 350px; padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; background: #f1f5f9; outline: none; }
+    .user-profile-badge-cluster { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+    .user-avatar-sim { width: 32px; height: 32px; background: #0055aa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
+
+    /* VIEW CANVAS VIEWPORT */
+    .main-viewport { flex: 1; display: flex; flex-direction: column; background: #f8fafc; }
+    .view-content-canvas { flex: 1; padding: 35px; overflow-y: auto; }
+    .view-header-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    .view-header-title-bar h1 { font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; }
+
+    /* CONTAINERS UTILITIES */
+    .enterprise-data-card-wrapper { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); padding: 25px; margin-bottom: 25px; }
+    .scrollable-table-container { max-height: 280px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px; background: #ffffff; }
+    .pagination-controls-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 5px 2px; }
+    .btn-pagination-nav { padding: 6px 14px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s; }
+    .btn-pagination-nav:hover:not(:disabled) { background: #f1f5f9; color: #0055aa; }
+    .btn-pagination-nav:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .split-layout-grid { display: grid; grid-template-columns: 1fr 2.5fr; gap: 30px; }
+    .form-entry-panel { background: white; border: 1px solid #e2e8f0; padding: 24px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .form-entry-panel h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #003366; margin-bottom: 15px; border-left: 3px solid #003366; padding-left: 8px; }
+    
+    .form-group-block { margin-bottom: 16px; display: flex; flex-direction: column; }
+    .form-group-block label { font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 6px; text-transform: uppercase; }
+    .form-group-block input, .form-group-block select, .form-group-block textarea { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; outline: none; background: white; }
+
+    /* CORE BUTTON SHAPES */
+    .btn-talent-blue { padding: 10px 20px; background: #0055aa; color: white; border: none; border-radius: 4px; font-weight: 600; font-size: 12px; cursor: pointer; text-transform: uppercase; }
+    .btn-talent-blue:hover { background: #004488; }
+    .btn-action-sm { padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 4px; cursor: pointer; border: none; text-transform: uppercase; margin-right: 5px; }
+    .btn-edit { background: #eff6ff; color: #1d4ed8; }
+    .btn-delete { background: #fef2f2; color: #dc2626; }
+    .btn-duplicate { background: #f0fdf4; color: #16a34a; }
+
+    /* TABLES CORE CONFIG */
+    table { width: 100%; border-collapse: collapse; }
+    table th, table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; text-align: left; }
+    table th { background: #f8fafc; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 5; box-shadow: inset 0 -1px 0 #e2e8f0; }
+
+    .badge-role { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: #f1f5f9; color: #334155; }
+    
+    /* DASHBOARD WIDGETS COMPONENTS */
+    .widget-switch-row { display: flex; gap: 20px; align-items: center; background: #f1f5f9; padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; font-size: 12px; font-weight: 600; }
+    .widget-switch-row input { margin-right: 6px; cursor: pointer; }
+    .dashboard-widgets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 25px; }
+    .widget-card { background: white; border: 1px solid #e2e8f0; padding: 24px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); border-top: 4px solid #0055aa; }
+    .widget-card h3 { font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 600; }
+    .widget-card p { font-size: 24px; font-weight: 700; color: #0f172a; }
+
+    /* CHARTS GRAPHS */
+    .reports-grid-metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+    .mock-pie-chart-donut { width: 130px; height: 130px; border-radius: 50%; background: conic-gradient(#10b981 0% 65%, #f97316 65% 85%, #cbd5e1 85% 100%); margin: 15px auto; position: relative; }
+    .mock-pie-chart-donut::before { content: ""; position: absolute; top: 25px; left: 25px; width: 80px; height: 80px; background: white; border-radius: 50%; }
+
+    /* SYSTEM SUB TABS STRIPS */
+    .icon-nav-container { display: flex; gap: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px; }
+    .btn-icon-tab { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; }
+    .btn-icon-tab:hover { background: #f8fafc; color: #003366; }
+    .btn-icon-tab.active-icon { background: #e2e8f0; color: #0f172a; border-color: #94a3b8; }
+
+    /* EDITABLE AVATAR BRAND UPLOADS ICON */
+    .course-editable-avatar-container {
+      width: 120px; height: 80px; background: rgba(255,255,255,0.15); border: 1px dashed rgba(255,255,255,0.4);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 28px;
+      cursor: pointer; position: relative; overflow: hidden; transition: all 0.2s; background-size: cover; background-position: center;
+    }
+    .course-editable-avatar-container:hover { background: rgba(255,255,255,0.25); border-color: #ffffff; }
+    .hover-upload-label { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); font-size: 10px; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; text-transform: uppercase; }
+    .course-editable-avatar-container:hover .hover-upload-label { opacity: 1; }
+
+    /* COMPONENT NESTED SUB-ITEMS DROPDOWN MENU STRIPS */
+    .builder-sidebar-menu { border-right: 1px solid #e2e8f0; padding-right: 20px; display: flex; flex-direction: column; gap: 8px; max-height:480px; overflow-y:auto; }
+    .builder-section-header { font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; margin-top:12px; margin-bottom:4px; padding-left:4px; }
+    .builder-sidebar-item { padding: 10px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; font-weight: 500; color: #334155; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.15s; }
+    .builder-sidebar-item:hover { background: #f8fafc; border-color: #cbd5e1; color: #0055aa; }
+    .builder-sidebar-item.active-item { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; font-weight:600; }
+
+    /* QUIZ BUILDER INTERNAL STYLES */
+    .quiz-question-card { background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; }
+
+    /* ==========================================================================
+       👑 FIXED MODALS REFACTORING: CORE FLOATING FIXED OVERLAYS SCREEN SYSTEM
+       ========================================================================== */
+    .custom-modal-overlay { 
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); 
+      display: flex; align-items: center; justify-content: center; z-index: 1000; 
+    }
+    .modal-box-card { 
+      background: white; border-radius: 8px; width: 500px; padding: 30px; 
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.04); 
+    }
+    .purge-modal {
+      border-top: 5px solid #dc2626;
+      text-align: center;
+      max-width: 420px;
+      padding: 28px;
+    }
+
+    .modal-title { color: #dc2626; font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .modal-description { color: #4b5563; font-size: 14px; line-height: 1.7; margin: 0; }
+    .modal-actions-flex { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+    .btn-modal-cancel, .btn-modal-confirm { min-width: 140px; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-modal-confirm { background: #dc2626; color: #fff; border: none; }
+    .btn-modal-confirm:hover { background: #b91c1c; }
+  
+  .icon-nav-container {
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid #dbe4ef;
+    border-radius: 8px;
+    background: #f8fafc;
+  }
+
+  .btn-icon-tab {
+    position: relative;
+    flex: 1;
+    justify-content: center;
+    min-height: 42px;
+    border-color: transparent;
+    border-radius: 6px;
+    background: transparent;
+    transition: all 0.18s ease;
+  }
+
+  .btn-icon-tab:hover {
+    background: #ffffff;
+    color: #003366;
+    border-color: #bfdbfe;
+    box-shadow: 0 6px 16px rgba(15,23,42,0.08);
+    transform: translateY(-1px);
+  }
+
+  .btn-icon-tab.active-icon {
+    background: #003366;
+    color: #ffffff;
+    border-color: #003366;
+    box-shadow: 0 8px 18px rgba(0,51,102,0.18);
+  }
+
+  .btn-icon-tab.active-icon::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: -9px;
+    height: 3px;
+    border-radius: 999px;
+    background: #10b981;
+  }
+
+  table tbody tr {
+    transition: background 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  table tbody tr:hover {
+    background: #f0f7ff;
+    box-shadow: inset 4px 0 0 #0055aa;
+  }
+
+  table tbody tr:hover td {
+    border-bottom-color: #dbeafe;
+    color: #0f172a;
+  }
+
+  #tbodyCourseRegistryRows tr:hover,
+  #tbodyCourseEnrollmentRows tr:hover,
+  #tbodyCourseFilesSubMetrics tr:hover {
+    cursor: pointer;
+    background: linear-gradient(90deg, #eff6ff 0%, #ffffff 72%);
+  }
+
+  #tbodyCourseRegistryRows tr:hover td:first-child strong {
+    color: #0055aa;
+  }
+
+  .btn-action-sm {
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .btn-action-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(15,23,42,0.10);
+  }
+    .course-registry-toolbar{display:grid;grid-template-columns:1.5fr .9fr .9fr auto;gap:10px;margin:14px 0 16px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
+    .course-registry-toolbar input,.course-registry-toolbar select{padding:10px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;background:white;outline:none}
+    .course-registry-toolbar input:focus,.course-registry-toolbar select:focus{border-color:#0055aa;box-shadow:0 0 0 3px rgba(0,85,170,.10)}
+    .course-status-badge,.course-chip{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase}
+    .status-published{background:#dcfce7;color:#166534}.status-draft{background:#fef3c7;color:#92400e}.status-review{background:#eff6ff;color:#1d4ed8}.status-archived{background:#f1f5f9;color:#475569}
+    .course-chip{background:#f8fafc;border:1px solid #e2e8f0;color:#334155;margin-right:4px}
+    .course-metrics-mini{display:flex;gap:6px;flex-wrap:wrap}
+    #tbodyCourseRegistryRows tr{transition:background .16s ease,box-shadow .16s ease}
+    #tbodyCourseRegistryRows tr:hover{background:linear-gradient(90deg,#eff6ff 0%,#fff 75%);box-shadow:inset 4px 0 0 #0055aa;cursor:pointer}
+    #tbodyCourseRegistryRows tr.selected-course-row{background:#eaf4ff;box-shadow:inset 4px 0 0 #10b981}
+    .course-actions-wrap{position:relative}
+    .btn-row-menu{width:32px;height:32px;border:1px solid #cbd5e1;background:white;border-radius:6px;cursor:pointer;font-weight:800;color:#334155}
+    .btn-row-menu:hover{border-color:#0055aa;color:#0055aa;box-shadow:0 4px 10px rgba(15,23,42,.10)}
+    .course-row-menu{display:none;position:absolute;right:0;top:36px;z-index:30;min-width:132px;background:white;border:1px solid #dbe4ef;border-radius:8px;box-shadow:0 14px 30px rgba(15,23,42,.14);overflow:hidden}
+    .course-row-menu.open{display:block}
+    .course-row-menu button{display:block;width:100%;padding:9px 11px;border:0;background:white;text-align:left;font-size:11px;font-weight:700;color:#334155;cursor:pointer}
+    .course-row-menu button:hover{background:#eff6ff;color:#0055aa}
+    .course-empty-state{text-align:center!important;color:#64748b;font-style:italic;padding:24px!important}
+    @media(max-width:900px){.course-registry-toolbar{grid-template-columns:1fr}.course-metrics-mini{min-width:160px}}
+
+    .course-node-summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:0 0 18px}
+    .course-node-stat{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;border-top:3px solid #0055aa}
+    .course-node-stat span{display:block;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase}
+    .course-node-stat strong{display:block;font-size:20px;margin-top:5px;color:#0f172a}
+    .course-node-tools{display:grid;grid-template-columns:1.3fr .9fr .9fr auto;gap:10px;margin-bottom:14px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
+    .course-node-tools input,.course-node-tools select{padding:9px 11px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px}
+    .progress-track{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:5px;width:120px}
+    .progress-fill{height:100%;background:#10b981;border-radius:999px}
+    .node-badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase}
+    .node-active{background:#eff6ff;color:#1d4ed8}.node-progress{background:#fef3c7;color:#92400e}.node-complete{background:#dcfce7;color:#166534}.node-overdue{background:#fee2e2;color:#b91c1c}
+    .btn-publish-course{background:#10b981!important;margin-left:8px}
+    .btn-publish-course.is-live{background:#64748b!important}
+    .course-node-file-actions button{margin-right:5px}
+    @media(max-width:950px){.course-node-summary-grid,.course-node-tools{grid-template-columns:1fr}}
+
+    .url {
+    width: 100%; /* Mas maganda ang 100% para sumakto sa container, pero pwede mong ibalik sa 200px */
+    max-width: 350px; 
+    height: 38px;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1; /* Light slate gray */
+    border-radius: 6px;
+    font-size: 13px;
+    color: #334155;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.url:focus {
+    outline: none;
+    border-color: #0055aa; /* Ang corporate blue mo */
+    box-shadow: 0 0 0 3px rgba(0, 85, 170, 0.15); /* Light blue glow effect */
+}
+  </style>
+    <link rel="stylesheet" href="assets/css/alert.css">
+</head>
+<body>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-icon-item active" onclick="SwitchTalentLmsTab('view-dashboard', this)">
+        <img src="./assets/images/home-page.png" alt="Home" class="sidebar-img-icon"> <span class="tooltip-text">Home Dashboard</span>
+      </div>
+      <div class="sidebar-icon-item" onclick="SwitchTalentLmsTab('view-users', this)">
+        <img src="./assets/images/user.png" alt="Users" class="sidebar-img-icon"> <span class="tooltip-text">User Navigator</span>
+      </div>
+      <div class="sidebar-icon-item" onclick="SwitchTalentLmsTab('view-courses', this)">
+        <img src="./assets/images/courses.png" alt="Courses" class="sidebar-img-icon"> <span class="tooltip-text">Courses Navigator</span>
+      </div>
+      <div class="sidebar-icon-item" onclick="SwitchTalentLmsTab('view-ai-kpi', this)" style="border: 1px dashed rgba(255,255,255,0.25);">
+        <span style="font-size: 16px;">🤖</span> <span class="tooltip-text">AI KPI Scorer</span>
+      </div>
+      <div>
+      <a href="./website/login.html" class="sidebar-icon-item">
+    <img src="./assets/images/log-out-icon.png" class="sidebar-img-icon" alt="Log Out"><span class="tooltip-text">Log Out</span></a>
+      </div>
+    </div>
+
+    <div class="main-viewport">
+      <div class="master-header-banner">
+        <div class="brand-cluster"><div class="mpi-official-logo-box"></div><div class="brand-title">Manly Plastics Training </div></div>
+      </div>
+
+      <div id="view-dashboard" class="lms-view-panel-page">
+        <div class="view-content-canvas">
+          <div class="view-header-title-bar"><h1>Dashboard Summary of Reports</h1></div>
+          <div class="form-entry-panel" style="margin-bottom:25px;">
+            <h3>⚙️ Admin Home Dashboard Widget Feature Controls</h3>
+            <div class="widget-switch-row">
+              <label><input type="checkbox" id="chk-widget-headcount" checked onchange="toggleWidgetVisibility('wdg-headcount', this)"> Total Headcount Index</label>
+              <label><input type="checkbox" id="chk-widget-activity" checked onchange="toggleWidgetVisibility('wdg-activity', this)"> Trainee Active Tracks</label>
+              <label><input type="checkbox" id="chk-widget-completion" checked onchange="toggleWidgetVisibility('wdg-completion', this)"> Completion Rate Metric</label>
+            </div>
+          </div>
+
+          <div class="dashboard-widgets-grid">
+            <div class="widget-card" id="wdg-headcount">
+                <h3>Total Headcount Index</h3>
+                <p id="lbl-dash-count">0</p>
+            </div>
+            <div class="widget-card" id="wdg-activity" style="border-top-color:#10b981;">
+                <h3>Trainee Active Tracks</h3>
+                <p id="lbl-dash-enrolled">0 Enrolled</p>
+            </div>
+            <div class="widget-card" id="wdg-completion" style="border-top-color:#f59e0b;">
+                <h3>Completion Rate Metric</h3>
+                <p id="lbl-dash-completion">0% Total Rate</p>
+            </div>
+        </div>
+        
+          <div class="enterprise-data-card-wrapper" id="wdg-charts-container">
+            <h2>Data Aggregates Master Matrix Ingestion Analytics</h2>
+            <div class="reports-grid-metrics-row">
+              <div class="widget-card" style="border-top-color:#0055aa;">
+                <h3>Activity Trends Allocation Index (Monthly)</h3>
+                <div style="height:130px; border-left:2px solid #e2e8f0; border-bottom:2px solid #e2e8f0; margin-top:15px; position:relative;">
+                  <div style="position:absolute; bottom:0; left:30px; width:25px; height:85px; background:#0055aa; border-radius:3px 3px 0 0;"></div>
+                  <div style="position:absolute; bottom:0; left:80px; width:25px; height:115px; background:#10b981; border-radius:3px 3px 0 0;"></div>
+                </div>
+              </div>
+              <div class="widget-card" style="border-top-color:#10b981; text-align:center;">
+                <h3>Course Performance Portfolio Ratios</h3>
+                <div class="mock-pie-chart-donut"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-users" class="lms-view-panel-page" style="display:none;">
+        <div class="view-content-canvas">
+            <div class="view-header-title-bar">
+                <h1>User Management Matrix</h1>
+            </div>
+            
+            <!-- MODERN TOP SECTION: FORM & AI SUMMARY -->
+            <div class="matrix-top-grid" style="margin-bottom: 24px;">
+                
+                <!-- PROVISION NEW USER FORM -->
+                <div class="dashboard-card form-card">
+                    <h3 id="userFormTitle">📋 Provision New User Account</h3>
+                    <hr>
+                    
+                    <form id="userFormSubmitBlock" onsubmit="handleUserCrudSubmissionPipeline(event)">
+                        <input type="hidden" id="editUserTargetIdx" value="-1">
+                        
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" id="inUserLast" required placeholder="e.g. Dela Cruz">
+                            </div>
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" id="inUserFirst" required placeholder="e.g. Juan">
+                            </div>
+                            <div class="form-group">
+                                <label>Middle Name (Optional)</label>
+                                <input type="text" id="inUserMiddle" placeholder="e.g. Santos">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Email Address (Gmail)</label>
+                                <input type="email" id="inUserGmail" required placeholder="juan@company.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" id="inUserUsername" required placeholder="juandelacruz">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Account Access Password</label>
+                            <input type="text" id="inUserPass" required placeholder="••••••••">
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Assigned System Role Type</label>
+                                <select id="inUserRole" required onchange="onRoleTypeChanged()">
+                                    <option value="Trainee">Trainee</option>
+                                    <option value="Supervisor">Supervisor</option>
+                                    <option value="Admin">System Administrator</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Assigned Department</label>
+                                <select id="inUserDept" required onchange="loadSupervisorDropdown()">
+                                    <option value="Sales Operations Division">Sales Operations Division</option>
+                                    <option value="Human Resources Cluster">Human Resources Cluster</option>
+                                    <option value="Manufacturing Fleet Node">Manufacturing Fleet Node</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group hidden" id="supervisorPanel">
+                            <label>Assigned Supervisor</label>
+                            <select id="inUserSupervisor"></select>
+                        </div>
+
+                        <!-- AI REQUIREMENT PANEL -->
+                        <div id="traineeAiRequirementPanel" class="hidden ai-requirement-box">
+                            <h4 style="margin-top: 0; color: var(--text-main);">🤖 Requirement: Generate KPI Agent</h4>
+                            <p style="margin-bottom: 15px; font-size: 13px;">All trainees must have an assigned Gemini KPI Agent before their account is created.</p>
+                            
+                            <!-- DITO NATIN NILAGAY ANG DALAWANG BUTTONS -->
+                            <button type="button" class="btn-secondary" onclick="toggleGeminiInstructions()">
+                                Generate KPI Agent for the Trainee
+                            </button>
+                              <div style="display: flex; gap: 10px;">                                 
+                                  <button type="button" class="btn-primary" onclick="window.open('https://gemini.google.com/gem-labs/new', '_blank')">
+                                      Open Gems ↗
+                                  </button>
+                              </div>
+                            
+                            <div id="geminiInstructionsPanel" class="hidden ai-instruction-panel">
+                                <h4 style="margin-top: 0; margin-bottom: 10px;">Manual Setup Instructions:</h4>
+                                <ol style="font-size: 13px; margin-bottom: 15px; padding-left: 20px;">
+                                    <li>Click <strong>"Generate Prompt"</strong> on the Manly Plastic A.I. to get the instructions.</li>
+                                    <li>Open Gemini, paste the prompt, and wait for the KPI plan.</li>
+                                    <li>Once generated, click <strong>Share</strong> in Gemini to copy the public link.</li>
+                                    <li>Paste the link in the box below.</li>
+                                </ol>
+                                
+                                <div>
+                                    <label for="inGeminiLink" style="font-size: 12px;"><strong>Gemini Share Link:</strong></label><br>
+                                    <input type="url" class="url" id="inGeminiLink" placeholder="https://gemini.google.com/..." style="width: 100%; margin-top: 5px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--  BAGONG LEARNING TAG REQUIREMENT PANEL -->
+                        <div id="traineeLearningTagRequirementPanel" class="hidden">
+                            
+                            <div class="form-group-block" style="margin-top: 15px;">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="chkLearningTag" onchange="toggleLearningTagPanel()" style="margin-right: 8px;">
+                                    Require Learning Tag / Assessment
+                                </label>
+                            </div>
+
+                            <!-- Hidden Sub-Panel para sa mismong Link -->
+                            <div id="learningTagPanel" class="hidden" style="background:#f1f5f9; padding:15px; border-radius:6px; margin-top:10px; border:1px solid #cbd5e1;">
+                                <label>Google Form / Assessment Link:</label>
+                                <input type="url" class="url" id="inGoogleFormLink" placeholder="https://forms.gle/...">
+                            </div>
+
+                            <!-- LEARNING TAG RESULT DROPDOWN -->
+                            <div class="form-group mb-3" id="learningTagResultContainer">
+                                <label for="inLearningTagResult" class="fw-bold">Assessment Result / Learning Tag:</label>
+                                <select class="form-select" id="inLearningTagResult">
+                                    <option value="Not Assessed">Not Assessed (Pending)</option>
+                                    <option value="Visual">Visual</option>
+                                    <option value="Auditory">Auditory</option>
+                                    <option value="Kinesthetic">Kinesthetic</option>
+                                    <option value="Logical">Logical</option>
+                                    <option value="Verbal">Verbal</option>
+                                </select>
+                                <small class="text-muted">Piliin ang resulta mula sa Google Sheet. I-set sa "Not Assessed" kung kailangan pa nilang mag-exam.</small>
+                            </div>
+
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" id="btnUserFormAction" class="btn-primary">Add User</button>
+                            <button type="button" id="btnCancelUserEdit" class="btn-secondary hidden" onclick="resetUserFormStateDefault()">Cancel Edit</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- MANLY PLASTIC A.I. INTERFACE (INTERACTIVE CHAT) -->
+                  <div class="dashboard-card ai-chat-card" style="display: flex; flex-direction: column; height: 100%;">
+                      <!-- Header -->
+                      <div class="ai-chat-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                          <div>
+                              <h3 style="margin: 0; color: #0055aa; font-size: 16px;">🤖 Manly Plastic A.I.</h3>
+                              <span style="font-size: 11px; color: #64748b;">Powered by Gemini API</span>
+                          </div>
+                          <span style="font-size: 12px; color: #10b981; font-weight: 600;">🟢 Online</span>
+                      </div>
+
+                      <!-- Quick Actions -->
+                      <div style="margin-bottom: 10px; display: flex; gap: 8px;">
+                          <button type="button" class="btn-secondary" onclick="generateManlyAiPrompt()" style="flex-grow: 1; font-size: 11px; padding: 6px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer;">
+                              ⚡ Quick Generate KPI Prompt
+                          </button>
+                      </div>
+
+                      <!-- Chat Window -->
+                      <div id="aiChatBox" style="flex-grow: 1; min-height: 180px; max-height: 200px; overflow-y: auto; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
+                          <!-- Welcome Message -->
+                          <div style="background: white; padding: 10px; border-radius: 8px 8px 8px 0; border: 1px solid #e2e8f0; align-self: flex-start; max-width: 90%;">
+                              <strong>MPAI:</strong> Hello Admin! I am online and ready. You can use the Quick Generate button above, or chat with me directly here!
+                          </div>
+                      </div>
+
+                      <!-- Chat Input Area -->
+                      <div class="ai-chat-input-area" style="display: flex; gap: 8px; margin-top: auto;">
+                          <input type="text" id="inAiChatMessage" placeholder="Type a message to MPAI..." style="flex-grow: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; outline: none;" onkeypress="handleAiChatEnter(event)">
+                          <button type="button" class="btn-primary" onclick="sendManlyAiMessage()" style="padding: 10px 16px; background: #0055aa; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                              Send
+                          </button>
+                      </div>
+                  </div>
+                
+            </div>
+            
+            <!-- BOTTOM SECTION: ORIGINAL TABLE -->
+            <div class="enterprise-data-card-wrapper">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 24px;">Personnel System Directory Table Registry</h2>
+                    
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="text" id="searchNameInput" placeholder="🔍 Search name..." 
+                            style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; width: 200px;">
+                        
+                        <select id="filterRoleSelect" style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; background-color: white;">
+                            <option value="">All Roles</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="SUPERVISOR">Supervisor</option>
+                            <option value="TRAINEE">Trainee</option>
+                        </select>
+                        
+                        <label style="display: flex; align-items: center; gap: 5px; font-size: 14px; cursor: pointer; white-space: nowrap;">
+                            <input type="checkbox" id="chkShowPasswords"> Show Passwords
+                        </label>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Gmail / Username</th>
+                            <th>Password</th>
+                            <th>Role Type</th>
+                            <th>Department</th>
+                            <th>Supervisor</th>
+                            <th>Learning Style Tag</th>
+                            <th>Created</th>
+                            <th>CRUD Options</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyUserRegistryRows"></tbody>
+                </table>
+
+                <!-- Enterprise Pagination Controls (Now Safely Nested) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px 0;">
+                    <div style="font-size: 14px; color: #64748b;">
+                        Showing <span id="userRegistryShowingCount">0</span> users
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button id="btnUserPrev" class="btn-pagination-nav" style="padding: 6px 12px; cursor: pointer;">Previous</button>
+                        <div id="userPageNumbersContainer" style="display: flex; gap: 5px;"></div>
+                        <button id="btnUserNext" class="btn-pagination-nav" style="padding: 6px 12px; cursor: pointer;">Next</button>
+                    </div>
+                </div>
+
+            </div> <!-- End of enterprise-data-card-wrapper -->
+        </div> <!-- End of view-content-canvas -->
+      </div> <!-- End of view-users -->
+
+      <div id="view-courses" class="lms-view-panel-page" style="display:none;">
+        <div class="view-content-canvas">
+          <div class="view-header-title-bar"><h1>Courses Directory Matrix</h1></div>
+          <div class="split-layout-grid">
+            <div class="form-entry-panel">
+              <h3 id="courseFormTitle">📖 Register Curriculum Track</h3>
+              <form id="courseFormSubmitBlock" onsubmit="handleCourseCrudSubmissionPipeline(event)">
+                <input type="hidden" id="editCourseTargetIdx" value="-1">
+                <div class="form-group-block"><label>Curriculum Track Title</label><input type="text" id="inCourseTitle" required></div>
+                <div class="form-group-block">
+                  <label>Priority Target Department Assignment</label>
+                  <select id="inCourseDept" required>
+                    <option value="Sales Operations Division">Sales Operations Division</option>
+                    <option value="Human Resources Cluster">Human Resources Cluster</option>
+                    <option value="Manufacturing Fleet Node">Manufacturing Fleet Node</option>
+                  </select>
+                </div>
+                <div class="form-group-block" style="flex-direction:row; gap:10px; align-items:center; background:#f8fafc; padding:10px; border-radius:4px; border:1px solid #cbd5e1;">
+                  <input type="checkbox" id="inCourseHasPrereq" onchange="evaluatePrerequisiteConditionalVisibility(this.checked)">
+                  <label for="inCourseHasPrereq" style="font-weight:700; color:#0055aa; margin-bottom:0; cursor:pointer;">Track Requires Prerequisite Course</label>
+                </div>
+                <div class="form-group-block hidden" id="wrapper-prereq-selector">
+                  <label style="color:#cc0000; font-weight:700;">⚠️ Select Target Prerequisite Course Required</label>
+                  <select id="inCoursePrereqSelectNode"></select>
+                </div>
+                <button type="submit" id="btnCourseFormAction" class="btn-talent-blue" style="width:100%;">Add Course</button>
+                <button type="button" id="btnCancelCourseEdit" class="btn-talent-blue hidden" style="width:100%; background:#64748b; margin-top:8px;" onclick="resetCourseFormStateDefault()">Cancel Edit</button>
+              </form>
+            </div>
+            <div class="enterprise-data-card-wrapper">
+              <h2>System Curricula Table Registry</h2>
+              <div class="scrollable-table-container" style="margin-top: 15px;">
+                <table>
+                  <thead><tr><th>Curriculum Track Course</th><th>Priority Department Target Scope</th><th>Prerequisite Condition State</th><th>CRUD Action Options</th></tr></thead>
+                  <tbody id="tbodyCourseRegistryRows"></tbody>
+                </table>
+              </div>
+              <div class="pagination-controls-row">
+                <button class="btn-pagination-nav" id="btn-page-prev" onclick="changeCoursePageGrid(-1)">Previous</button>
+                <span id="lbl-page-indicator" style="font-size:12px; font-weight:600; color:#475569;">Page 1 of 1</span>
+                <button class="btn-pagination-nav" id="btn-page-next" onclick="changeCoursePageGrid(1)">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-course-metrics" class="lms-view-panel-page" style="display:none;">
+        <div class="view-content-canvas">
+          <div class="view-header-title-bar">
+            <button class="btn-pagination-nav" onclick="SwitchTalentLmsTab('view-courses', document.querySelectorAll('.sidebar-icon-item')[2])" style="font-weight:700; color:#0055aa; margin-right:15px;">← Back to Courses</button>
+            <h1 id="lbl-metrics-view-course-title" style="flex:1;">Course Title</h1>
+            <button class="btn-talent-blue" style="background:#cc0000;" onclick="navigateToCourseBuilderScreen()">✏️ Edit course</button>
+          </div>
+
+          <div class="icon-nav-container">
+            <button class="btn-icon-tab active-icon" id="tab-btn-users" onclick="switchMetricsInnerPane('pane-metrics-users', this)">👥 Users Enrolled</button>
+            <button class="btn-icon-tab" id="tab-btn-files" onclick="switchMetricsInnerPane('pane-metrics-files', this)">📁 Files Resource</button>
+          </div>
+
+          <div id="pane-metrics-users" class="metrics-inner-panel-block">
+            <div class="enterprise-data-card-wrapper">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="font-size:13px;">Enrolled Account Trainees Directory</h3>
+                <button class="btn-talent-blue" style="padding:6px 12px; font-size:11px;" onclick="openEnrollUserInteractiveModal()">👤 Enroll user</button>
+              </div>
+
+              <div class="table-toolbar">
+                <input type="text" id="txtUserSearch" placeholder="🔍 Search name, email or username..." onkeyup="recalculateLmsStateTablesCanvas()">
+
+                <select id="filterRole" onchange="recalculateLmsStateTablesCanvas()">
+                    <option value="All">All Roles</option>
+                    <option value="Admin">System Administrator</option>
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="Trainee">Trainee</option>
+                </select>
+
+                <select id="filterDept" onchange="recalculateLmsStateTablesCanvas()">
+                    <option value="All">All Departments</option>
+                    <option value="Sales Operations Division">Sales Operations Division</option>
+                    <option value="Human Resources Cluster">Human Resources Cluster</option>
+                    <option value="Manufacturing Fleet Node">Manufacturing Fleet Node</option>
+                </select>
+
+                <label style="cursor:pointer; font-size:14px;">
+                    <input type="checkbox" id="chkShowPasswords" onchange="togglePasswords()"> Show Passwords
+                </label>
+            </div>
+            
+              <table>
+                <thead><tr><th>User</th><th>Role</th><th>Department</th><th>Progress Status</th><th>Enrollment Date</th><th>Completion Date</th></tr></thead>
+                <tbody id="tbodyCourseUsersSubMetrics"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="pane-metrics-files" class="metrics-inner-panel-block hidden">
+            <div class="enterprise-data-card-wrapper">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="font-size:13px;">Course Material Repositories</h3>
+                <button class="btn-talent-blue" style="padding:6px 12px; font-size:11px;" onclick="openFileUploadModalSubNode()">Add Files Asset</button>
+              </div>
+              <table>
+                <thead><tr><th>Resource File / Asset Name</th><th>Type Node</th><th>Ingestion Source URL</th></tr></thead>
+                <tbody id="tbodyCourseFilesSubMetrics"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-course-builder" class="lms-view-panel-page" style="display:none;">
+        <div class="view-content-canvas">
+          <div class="view-header-title-bar">
+            <button class="btn-pagination-nav" onclick="SwitchTalentLmsTab('view-course-metrics', null)" style="font-weight:700; color:#0055aa; margin-right:15px;">← Back</button>
+            <h1 style="flex:1;">Edit Course Architecture</h1>
+          </div>
+
+          <div style="background: linear-gradient(135deg, #003366 0%, #002244 100%); color: white; padding: 40px; border-radius: 6px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <div>
+              <h2 id="lbl-builder-hero-title" contenteditable="true" onblur="saveEditableCourseTitle()" style="font-size: 26px; font-weight: 700; letter-spacing: -0.5px; outline:none;">New course</h2>
+              <p id="lbl-builder-hero-subtitle" contenteditable="true" onblur="saveEditableCourseSubtitle()" style="font-size: 13px; color: #cbd5e1; margin-top: 5px; outline:none;">MPI Training Content Engine Management Framework Terminal</p>
+            </div>
+            <div class="course-editable-avatar-container" id="div-hero-avatar-box" onclick="document.getElementById('inCourseHeroPictureNode').click()">
+              <span id="lbl-hero-avatar-placeholder">⚡</span>
+              <div class="hover-upload-label">Change Logo</div>
+              <input type="file" id="inCourseHeroPictureNode" class="hidden" accept="image/*" onchange="handleCourseHeroImageUploadStream(this)">
+            </div>
+          </div>
+
+          <div style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Add a course description up to 5000 characters</div>
+
+          <div style="display: grid; grid-template-columns: 1.4fr 2.5fr 2fr; gap: 25px;">
+            <div class="builder-sidebar-menu">
+              <div class="builder-section-header">Standard Content</div>
+              <div class="builder-sidebar-item active-item" id="item-type-Content" onclick="activateBuilderLessonType('Content')"><span>📄 Content (Text)</span><span>&gt;</span></div>
+              <div class="builder-sidebar-item" id="item-type-Webcontent" onclick="activateBuilderLessonType('Webcontent')"><span>☁️ Web content Link</span><span>&gt;</span></div>
+              <div class="builder-sidebar-item" id="item-type-Video" onclick="activateBuilderLessonType('Video')"><span>🎥 Video Track Link</span><span>&gt;</span></div>
+              
+              <div class="builder-section-header">Learning Activities</div>
+              <div class="builder-sidebar-item" id="item-type-Test" onclick="activateBuilderLessonType('Test')"><span>📝 Test (Quiz Creator)</span><span>&gt;</span></div>
+              <div class="builder-sidebar-item" id="item-type-Survey" onclick="activateBuilderLessonType('Survey')"><span>📊 Survey Matrix Ingest</span><span>&gt;</span></div>
+            </div>
+
+            <div class="form-entry-panel" id="builderDynamicFormEntryBox">
+              <h3 id="lbl-active-editor-heading">📄 Construct Text Content Lesson</h3>
+              <div class="form-group-block" style="margin-top:12px;"><label>Lesson / Unit Title Heading</label><input type="text" id="inUnitTitle" placeholder="Enter heading title..."></div>
+              
+              <div id="dynamicFormFieldsWorkspace">
+                </div>
+              
+              <input type="hidden" id="cacheSelectedTypeToken" value="Content">
+              <button class="btn-talent-blue" style="width:100%; padding:11px;" onclick="commitNewUnitToCourseTimeline()">Save & Ingest Unit</button>
+            </div>
+
+            <div class="form-entry-panel" style="border-top-color:#10b981;">
+              <div style="display:flex; justify-content:space-between; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:15px; font-size:12px; font-weight:600; color:#475569;"><span>Content Syllabus Matrix</span><span style="color:#0055aa;">Live Track</span></div>
+              <div id="courseUnitsTimelineContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-ai-kpi" class="lms-view-panel-page" style="display:none;">
+        <div class="view-content-canvas" style="max-width: 1200px; margin: 0 auto;">
+          <div class="view-header-title-bar">
+            <h1>🤖 AI Automatic KPI Performance Scorer Terminal</h1>
+          </div>
+          
+          <div class="split-layout-grid" style="grid-template-columns: 1fr 1.2fr; gap: 30px; margin-top: 10px;">
+            
+            <div class="form-entry-panel">
+              <h3>📋 Performance Evaluation Parameters</h3>
+              
+              <div class="form-group-block">
+                <label>KPI Evaluation Rubric / Criteria Matrix</label>
+                <textarea id="kpiCriteriaInput" rows="6" placeholder="E.g., Safety Compliance (70%): Adherence to protocols. Operational Speed (30%): Completion within 5 minutes."></textarea>
+              </div>
+              
+              <div class="form-group-block">
+                <label>Trainee Submission / Performance Log Audit Track</label>
+                <textarea id="traineeAnswerInput" rows="6" placeholder="Paste the trainee's actual submission or system performance log here..."></textarea>
+              </div>
+              
+              <button id="btnEvaluateKPI" onclick="runKpiEvaluation()" class="btn-talent-blue" style="width:100%; padding:12px; margin-top:10px; letter-spacing: 0.5px;">
+                Execute Performance Audit
+              </button>
+            </div>
+
+            <div class="form-entry-panel" style="border-top-color: #10b981; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h3>📊 Enterprise Evaluation Scorecard Result</h3>
+                
+                <div id="aiLoadingState" class="hidden" style="text-align: center; padding: 50px 0;">
+                  <div class="alert-spinner" style="width: 50px; height: 50px; border-width: 4px;"></div>
+                  <p style="font-size: 11px; color: #64748b; font-weight: 700; margin-top: 15px; letter-spacing: 0.5px; text-transform: uppercase;">
+                    AI is auditing performance parameters...
+                  </p>
+                </div>
+
+                <div id="aiResultState" style="display: flex; flex-direction: column; gap: 20px; transition: opacity 0.2s;">
+                  <div style="display: flex; align-items: center; gap: 25px;">
+                    <div style="text-align: center; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 110px;">
+                      <span style="display: block; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Final Score</span>
+                      <strong id="lblKpiScore" style="font-size: 34px; font-weight: 800; color: #cbd5e1; display: block; margin-top: 4px;">--</strong>
+                    </div>
+                    <div>
+                      <span style="display: block; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Audit Verdict</span>
+                      <span id="lblKpiStatus" class="node-badge node-active" style="font-size: 11px; padding: 6px 14px;">Awaiting Ingestion</span>
+                    </div>
+                  </div>
+
+                  <div style="border-top: 1px solid #f1f5f9; padding-top: 15px;">
+                    <label style="font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; display: block; margin-bottom: 6px;">Justification Audit Logs:</label>
+                    <p id="lblKpiJustification" style="font-size: 13px; color: #64748b; line-height: 1.6; font-style: italic;">
+                      Submit trainee response matrices on the left panel to trigger automated AI performance audit execution pipeline.
+                    </p>
+                  </div>
+
+                  <div style="border-top: 1px solid #f1f5f9; padding-top: 15px;">
+                    <label style="font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; display: block; margin-bottom: 6px;">Recommended Intervention Track:</label>
+                    <p id="lblKpiRecommendation" style="font-size: 13px; color: #475569; line-height: 1.6; font-weight: 500;">
+                      --
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px; display: flex; justify-content: flex-end;">
+                <button id="btnSaveKpi" disabled class="btn-talent-blue" style="background: #10b981;" onmouseover="this.style.background='#0e9f6e'" onmouseout="this.style.background='#10b981'">
+                  💾 Commit Score to Records Matrix
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="custom-modal-overlay hidden" id="enrollUserModalOverlay">
+    <div class="modal-box-card" style="width: 540px; text-align: left; border-top: 5px solid #0055aa;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size:15px; color:#003366;">👤 Enroll Registered Personnel Node</h2>
+        <button onclick="closeEnrollUserInteractiveModal()" style="background:none; border:none; color:#dc2626; font-size:20px; cursor:pointer; font-weight:700;">×</button>
+      </div>
+      <div class="form-group-block" style="background:#f8fafc; padding:12px; border-radius:4px; margin-bottom:15px; border:1px solid #cbd5e1;">
+        <label style="color:#0055aa; font-weight:700;">🔍 Filter Selection by Department Scope</label>
+        <select id="selEnrollDeptFilter" onchange="filterEnrollmentUsersListByDept(this.value)" style="margin-top:4px;">
+          <option value="ALL">-- Show All System Departments --</option>
+          <option value="Sales Operations Division">Sales Operations Division</option>
+          <option value="Human Resources Cluster">Human Resources Cluster</option>
+          <option value="Manufacturing Fleet Node">Manufacturing Fleet Node</option>
+        </select>
+      </div>
+      <label style="font-size: 11px; font-weight:600; color:#475569; text-transform:uppercase;">Select target user account</label>
+      <div class="scrollable-table-container" style="max-height:180px; margin-top:5px; border:1px solid #e2e8f0;">
+        <table>
+          <thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Action</th></tr></thead>
+          <tbody id="tbodyModalEnrollUserRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="custom-modal-overlay hidden" id="fileUploadModalOverlay">
+    <div class="modal-box-card" style="border-top-color:#0055aa; text-align:left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size:14px; color:#003366;">📁 Ingest Resource Asset Files</h2>
+        <button onclick="closeFileUploadModalSubNode()" style="background:none; border:none; color:#dc2626; font-size:20px; cursor:pointer; font-weight:700;">×</button>
+      </div>
+      <div id="drop-zone-canvas" onclick="document.getElementById('manualFileInputNode').click()" style="border: 2px dashed #cbd5e1; border-radius: 6px; padding: 30px 20px; text-align: center; background: #f8fafc; cursor: pointer;">        <span style="font-size: 24px;">📥</span>
+        <p style="font-size: 13px; color: #475569; margin-top: 8px;">Drag and drop file here, or click to browse</p>
+        <input type="file" id="manualFileInputNode" class="hidden" onchange="handleManualFileSelect(this)">
+      </div>
+    </div>
+  </div>
+
+  <div class="custom-modal-overlay hidden" id="purgeModalSystemOverlay">
+    <div class="modal-box-card purge-modal">
+        <h2 id="modalTitleText" class="modal-title">⚠️ Security Verification</h2>
+        <p id="modalBodyText" class="modal-description">You are about to permanently delete this record.</p>
+        <div class="modal-actions-flex">
+            <button class="btn-modal-cancel" onclick="closePurgeModalSystemPipeline()">Cancel</button>
+            <button class="btn-modal-confirm" id="btnModalConfirmAction" onclick="processActiveModalConfirmationTrigger()">Yes, Delete Record</button>
+        </div>
+    </div>
+  </div>
+
+<!--ai_provisioning-->
+  <div id="view-ai-provisioning" class="lms-view-panel-page hidden">
+    <div class="page-header">
+        <h2>🤖 Personal AI Provisioning</h2>
+        <p>Create and configure a personal AI profile for every trainee.</p>
+    </div>
+
+    <div class="wizard-header">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3 style="margin:0;">
+                AI Setup Wizard
+            </h3>
+            <span id="aiWizardStepLabel">
+                Step 1 of 4
+            </span>
+        </div>
+        <div style="width:100%;height:10px;background:#e5e7eb;border-radius:50px;overflow:hidden;">
+            <div id="wizardProgressFill"
+                 style="width:25%;height:100%;background:#2563eb;">
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <div id="wizard-step-1">
+        <div class="dashboard-card">
+            <h3>👤 Trainee Information</h3>
+            <table style="width:100%;">
+                <tr>
+                    <td width="180"><strong>Name</strong></td>
+                    <td id="aiEmployeeName">________________</td>
+                </tr>
+                <tr>
+                    <td><strong>Department</strong></td>
+                    <td id="aiEmployeeDept">________________</td>
+                </tr>
+                <tr>
+                    <td><strong>Role</strong></td>
+                    <td>Trainee</td>
+                </tr>
+                <tr>
+                    <td><strong>Current Status</strong></td>
+                    <td>
+                        <span class="badge badge-warning">
+                            AI Pending
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="wizard-step-2" class="hidden">
+        <div class="dashboard-card">
+            <h3>🤖 Select AI Provider</h3>
+            <label>
+                <input
+                    type="radio"
+                    name="aiProvider"
+                    value="Gemini"
+                    checked>
+                Google Gemini
+            </label>
+            <br><br>
+            <label>
+                <input
+                    type="radio"
+                    name="aiProvider"
+                    value="OpenAI">
+                OpenAI
+            </label>
+        </div>
+    </div>
+
+    <div id="wizard-step-3" class="hidden">
+        <div class="dashboard-card">
+            <h3>🧠 Select AI Template</h3>
+            <select id="aiTemplateSelect">
+                <option>Sales Coach</option>
+                <option>HR Coach</option>
+                <option>Safety Coach</option>
+                <option>Leadership Coach</option>
+                <option>Manufacturing Coach</option>
+            </select>
+            <br><br>
+            <h4>Manual</h4>
+            <button>
+                📘 Open Setup Guide
+            </button>
+        </div>
+    </div>
+
+    <div id="wizard-step-4" class="hidden">
+        <div class="dashboard-card">
+            <h3>✅ Review Configuration</h3>
+            <table style="width:100%;">
+                <tr>
+                    <td width="180"><strong>Employee</strong></td>
+                    <td id="reviewEmployeeName">
+                        __________________
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Provider</strong></td>
+                    <td id="reviewProvider">
+                        Gemini
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Template</strong></td>
+                    <td id="reviewTemplate">
+                        Sales Coach
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Status</strong></td>
+                    <td>
+                        <span class="badge badge-success">
+                            Ready for Initialization
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <br>
+    <div style="display:flex;justify-content:space-between;">
+
+        <button id="btnWizardBack">
+
+            ← Back
+
+        </button>
+
+        <button id="btnWizardNext">
+
+            Next →
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- AI MANAGEMENT -->
+<div id="view-ai-management" class="lms-view-panel-page hidden">
+    <div class="page-header">
+        <h2>🤖 AI Management Center</h2>
+        <p>Configure and manage the organization's AI ecosystem.</p>
+    </div>
+    <br>
+    <!-- AI Providers -->
+    <div class="dashboard-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3>🌐 AI Providers</h3>
+            <button class="btn-primary">
+                + Add Provider
+            </button>
+        </div>
+        <table class="table-modern" style="width:100%;margin-top:15px;">
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Status</th>
+                    <th>Version</th>
+                    <th>Connection</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyAiProviders">
+                <tr>
+                    <td>Google Gemini</td>
+                    <td>
+                        🟢 Active
+                    </td>
+                    <td>
+                        Gemini 2.5 Pro
+                    </td>
+                    <td>
+                        Connected
+                    </td>
+                    <td>
+                        <button>Edit</button>
+                        <button>Disable</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br>
+
+    <!-- AI Templates -->
+    <div class="dashboard-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3>🧠 AI Templates</h3>
+            <button class="btn-primary">
+                + Create Template
+            </button>
+        </div>
+
+        <table class="table-modern" style="width:100%;margin-top:15px;">
+            <thead>
+                <tr>
+                    <th>Template</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyAiTemplates">
+                <tr>
+                    <td>Sales Coach</td>
+                    <td>Sales</td>
+                    <td>🟢 Active</td>
+                    <td>Today</td>
+                    <td>
+                        <button>Edit</button>
+                        <button>Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <!-- Prompt Library -->
+    <div class="dashboard-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3>📚 Prompt Library</h3>
+            <button class="btn-primary">
+                + New Prompt
+            </button>
+        </div>
+        <table class="table-modern" style="width:100%;margin-top:15px;">
+            <thead>
+                <tr>
+                    <th>Prompt Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyPromptLibrary">
+                <tr>
+                    <td>Sales Prompt</td>
+                    <td>Sales</td>
+                    <td>🟢 Ready</td>
+                    <td>
+                        <button>Edit</button>
+                        <button>Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <!-- Global AI Configuration -->
+    <div class="dashboard-card">
+        <h3>⚙ AI Global Configuration</h3>
+        <br>
+        <table style="width:100%;">
+            <tr>
+                <td width="250">
+                    Temperature
+                </td>
+                <td>
+                    <input type="number" value="0.7">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Max Token
+                </td>
+                <td>
+                    <input type="number" value="4000">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    AI Personality
+                </td>
+                <td>
+                    <select>
+
+                        <option>Professional</option>
+                        <option>Friendly</option>
+                        <option>Corporate</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Memory
+                </td>
+                <td>
+                    <input type="checkbox" checked>
+                    Enable AI Memory
+                </td>
+            </tr>
+        </table>
+        <br>
+        <button class="btn-primary">
+            Save Configuration
+        </button>
+      </div>
+    <br>
+    <!-- Statistics -->
+    <div class="dashboard-card">
+        <h3>📊 AI Statistics</h3>
+        <br>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+            <div class="stat-card">
+                <h2>25</h2>
+                <p>AI Profiles</p>
+            </div>
+            <div class="stat-card">
+                <h2>5</h2>
+                <p>Templates</p>
+            </div>
+            <div class="stat-card">
+                <h2>2</h2>
+                <p>Providers</p>
+            </div>
+            <div class="stat-card">
+                <h2>100%</h2>
+                <p>System Health</p>
+            </div>
+          </div>
+    </div>
+</div>
+
+<div id="view-ai-template-registry" class="lms-view-panel-page hidden">
+    <div class="page-header">
+        <h2>🧠 AI Template Registry</h2>
+        <p>Create and manage AI Templates used throughout the LMS Platform.</p>
+    </div>
+    <br>
+    <div class="toolbar">
+        <input type="text" placeholder="Search AI Template...">
+        <button class="btn-primary">+ Create Template</button>
+    </div>
+    <br>
+    <table class="table-modern" style="width:100%;">
+        <thead>
+            <tr>
+                <th>Template Name</th>
+                <th>Department</th>
+                <th>Provider</th>
+                <th>Status</th>
+                <th>Updated</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyAiTemplateRegistry">
+            <tr>
+                <td>Sales Coach</td>
+                <td>Sales</td>
+                <td>Gemini</td>
+                <td>🟢 Active</td>
+                <td>Today</td>
+                <td>
+                    <button>Edit</button>
+                    <button>Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="view-organization-management"
+     class="lms-view-panel-page hidden">
+
+</div>
+
+<!-- AI PROVISIONING WIZARD -->
+<div id="aiProvisioningModal" class="modal-overlay hidden">
+    <div class="modal-window" style="max-width:900px;">
+        <div class="modal-header">
+            <h2>🤖 AI Provisioning Wizard</h2>
+            <button type="button" onclick="closeAiProvisioningWizard()">✖</button>
+        </div>
+        <div class="modal-body">
+            <div id="aiProvisionContent">
+                </div>
+        </div>
+    </div>
+</div>
+
+<script src="assets/js/core/alert.js"></script>
+
+<!-- CONFIG -->
+<script src="core/db_config.js"></script>
+<script src="core/ai_config.js"></script>
+
+<!-- OLD AI -->
+<script src="assets/js/ai/ai_handler.js"></script>
+<script src="assets/js/ai/ai_kpi_scorer.js"></script>
+
+<!-- ===== NEW AI CORE ===== -->
+
+<script src="assets/js/ai_core/ai_provider_manager.js"></script>
+<script src="assets/js/ai_core/ai_learning_profile.js"></script>
+<script src="assets/js/ai_core/ai_prompt_builder.js"></script>
+<script src="assets/js/ai_core/ai_agent_manager.js"></script>
+<script src="assets/js/ai_core/ai_core_bootstrap.js"></script>
+
+<!-- ===== DASHBOARD ===== -->
+
+<script src="assets/js/core/dashboard.js"></script>
+<script src="assets/js/core/navigation.js"></script>
+
+<!-- ===== MODULES ===== -->
+ 
+<script src="assets/js/modules/ai_provisioning.js"></script>
+<script src="assets/js/modules/users.js"></script>
+<script src="assets/js/modules/courses.js"></script>
+
+<script src="assets/js/modules/course_builder.js"></script>
+<script src="assets/js/modules/course_files.js"></script>
+<script src="assets/js/modules/enrollment.js"></script>
+<script src="assets/js/modules/reports.js"></script>
+<script src="assets/js/modules/settings.js"></script>
+<script src="assets/js/modules/gemini.js"></script>
+
+<!-- ===== ADMIN ===== -->
+
+<script src="assets/js/core/admin.js"></script>
+</body>
+</html>

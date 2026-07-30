@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainee Portal | LMS</title>
+    
+    <!-- External Frameworks & Global CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Local Trainee Specific CSS -->
+    <link rel="stylesheet" href="./css/trainee_style.css">
+    <link rel="icon" type="image/png" href="./assets/images/manlylogo.png">
+</head>
+<body>
+
+<div class="d-flex wrapper">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar shadow">
+        <div class="text-center mb-4">
+            <img src="./images/user.png" alt="User Profile" class="profile-img rounded-circle mb-2">
+            <h5 class="text-white">Trainee Portal</h5>
+        </div>
+        <hr class="border-secondary">
+        <nav class="nav flex-column" id="sidebarNav">
+            <a href="#" data-target="dashboard" class="nav-link active">Dashboard</a>
+            <a href="#" data-target="courses" class="nav-link">My Courses</a>
+            <a href="#" data-target="certificates" class="nav-link">Certificates</a>
+            <a href="#" data-target="settings" class="nav-link">Profile & Settings</a>
+            
+            <!-- ✨ BAGONG MENU PARA SA AI -->
+            <a href="#" data-target="ai-agent" class="nav-link fw-semibold" style="color: #0dcaf0;">🤖 AI KPI Agent</a>
+            
+            <a href="/hr_admin_training_refactor/public/website/login.html" class="nav-link text-danger mt-5">Logout</a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content flex-grow-1 bg-light">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-light bg-white shadow-sm px-4 py-3 mb-4">
+            <h4 class="mb-0 fw-bold text-primary" id="pageTitle">Dashboard</h4>
+            <div>
+                <span class="me-3 fw-semibold text-secondary" id="userGreeting">Loading...</span>
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4">
+            
+            <!-- DASHBOARD SECTION -->
+            <div id="dashboard" class="content-section active">
+                <div class="row mb-4" id="dashboardStatsContainer">
+                    <!-- Loaded via dashboard.js -->
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 mb-4" id="trainingFocusCard">
+                            <!-- Loaded via dashboard.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MY COURSES SECTION -->
+            <div id="courses" class="content-section">
+                <p class="text-muted mb-4">Track your training progress and complete your assigned modules.</p>
+                <div class="row" id="coursesListContainer">
+                    <!-- Loaded via courses.js -->
+                </div>
+            </div>
+
+            <!-- CERTIFICATES SECTION -->
+            <div id="certificates" class="content-section">
+                <div class="card shadow-sm border-0 text-center py-5">
+                    <div class="card-body" id="certificatesContainer">
+                        <!-- Loaded via certificates.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS & PROFILE SECTION -->
+            <div id="settings" class="content-section">
+                <div class="card shadow-sm border-0" style="max-width: 700px;">
+                    <div class="card-body">
+                        <h5 class="mb-4 text-primary fw-bold">Personal Information & Requirements</h5>
+                        <form id="profileSettingsForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Full Name</label>
+                                    <input type="text" class="form-control" id="profileName" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Email Address</label>
+                                    <input type="email" class="form-control" id="profileEmail" readonly>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <h6 class="mb-3 text-secondary">Admin & Supervisor Configurations</h6>
+                            <div id="adminRequirementsContainer">
+                                <!-- Loaded via settings.js -->
+                            </div>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary px-4" id="btnUpdateSettings">Request Profile Update</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ✨ FIRST-TIME ONBOARDING POPUP (LEARNING TAG) -->
+<div class="modal fade" id="onboardingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold">👋 Welcome to your Trainee Portal!</h5>
+            </div>
+            <div class="modal-body p-5 text-center">
+                <img src="./images/user.png" alt="Welcome" style="width: 80px; opacity: 0.5; margin-bottom: 20px;">
+                <h3 class="fw-bold mb-3">Setup Your Learning Profile</h3>
+                <p class="text-muted mb-4">
+                    Bago ka mag-simula sa iyong mga courses, kailangan muna nating alamin ang iyong <strong>Learning Tag</strong>. 
+                    Ito ay isang maikling assessment para ma-personalize namin ang training mo base sa kung paano ka pinakamabilis matuto (Visual, Auditory, o Kinesthetic).
+                </p>
+                <div class="alert alert-info" role="alert">
+                    ⏳ <strong>Estimated time:</strong> 3-5 minutes only.
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center border-0 pb-5">
+                <button type="button" class="btn btn-primary btn-lg px-5 fw-bold" onclick="startLearningAssessment()">
+                    Start Assessment Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Local Trainee Scripts -->
+<script src="./js/navigation.js"></script>
+<script src="./js/dashboard.js"></script>
+<script src="./js/courses.js"></script>
+<script src="./js/certificates.js"></script>
+<script src="./js/settings.js"></script>
+
+</body>
+</html>

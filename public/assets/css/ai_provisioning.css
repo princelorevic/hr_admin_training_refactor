@@ -1,0 +1,62 @@
+/* =======================================
+   AI PROVISIONING MODAL
+======================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    backdrop-filter: blur(4px);
+}
+
+.modal-window {
+    width: 90%;
+    max-width: 900px;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+    animation: modalPop .25s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 25px;
+    background: #0f4c81;
+    color: white;
+}
+
+.modal-header button {
+    border: none;
+    background: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 25px;
+    max-height: 75vh;
+    overflow: auto;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

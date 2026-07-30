@@ -1,0 +1,283 @@
+/* =========================================
+   FADE IN
+========================================= */
+
+@keyframes fadeIn{
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in{
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* =========================================
+   FADE UP
+========================================= */
+
+@keyframes fadeUp{
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-up{
+    animation: fadeUp 0.5s ease-out forwards;
+}
+
+/* =========================================
+   SLIDE LEFT
+========================================= */
+
+@keyframes slideLeft{
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-left{
+    animation: slideLeft 0.5s ease-out forwards;
+}
+
+/* =========================================
+   SLIDE RIGHT
+========================================= */
+
+@keyframes slideRight{
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-right{
+    animation: slideRight 0.5s ease-out forwards;
+}
+
+/* =========================================
+   ZOOM IN
+========================================= */
+
+@keyframes zoomIn{
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.zoom-in{
+    animation: zoomIn 0.5s ease-out forwards;
+}
+
+/* =========================================
+   FLOATING
+========================================= */
+
+@keyframes floating{
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.hero-dashboard{
+    animation: floating 4s ease-in-out infinite;
+}
+
+/* =========================================
+   BUTTON HOVER
+========================================= */
+
+.primary-btn,
+.secondary-btn,
+.login-btn{
+    transition: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.login-btn:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================================
+   CARD HOVER
+========================================= */
+
+.feature-card,
+.solution-card,
+.about-card,
+.stat-card,
+.why-card{
+    transition: 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.feature-card:hover,
+.solution-card:hover,
+.about-card:hover,
+.stat-card:hover,
+.why-card:hover{
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   IMAGE HOVER
+========================================= */
+
+.about-image img{
+    transition: 0.3s ease-out;
+}
+
+.about-image img:hover{
+    transform: scale(1.02);
+}
+
+/* =========================================
+   LOADING BAR
+========================================= */
+
+@keyframes loading{
+    from {
+        width: 0%;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+.loading-progress{
+    animation: loading 0.8s ease-in-out forwards;
+}
+
+/* =========================================
+   LOGO SPIN
+========================================= */
+
+@keyframes logoSpin{
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-logo{
+    animation: logoSpin 1.5s linear infinite;
+}
+
+/* =========================================
+   SCROLL REVEAL
+========================================= */
+
+.reveal{
+    opacity: 0;
+    transform: translateY(30px);
+    transition: 0.5s ease-out;
+}
+
+.reveal.active{
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =========================================
+   NAVBAR SCROLL
+========================================= */
+
+.navbar.scrolled{
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* =========================================
+   INPUT FOCUS
+========================================= */
+
+.contact-form input,
+.contact-form textarea {
+    transition: 0.2s ease-out;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus{
+    transform: scale(1.01);
+    box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+    border-color: #003366;
+}
+
+/* =========================================
+   SMOOTH HOVER
+========================================= */
+
+.nav-links a{
+    position: relative;
+    transition: color 0.2s;
+}
+
+.nav-links a::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0;
+    height: 2px;
+    background: #e30613; /* Pinalitan ko gamit ang red accent ng Manly */
+    transition: width 0.25s ease-out;
+}
+
+.nav-links a:hover::after{
+    width: 100%;
+}
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar{
+    width: 8px;
+}
+
+::-webkit-scrollbar-track{
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb{
+    background: #003366;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background: #002244;
+}
