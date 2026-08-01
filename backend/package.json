@@ -1,0 +1,31 @@
+{
+  "name": "hr_admin_training_refactor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roxasprince1422-bot/hr_admin_training_refactor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/roxasprince1422-bot/hr_admin_training_refactor/issues"
+  },
+  "homepage": "https://github.com/roxasprince1422-bot/hr_admin_training_refactor#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.23.2"
+  }
+}

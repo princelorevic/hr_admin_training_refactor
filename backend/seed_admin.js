@@ -1,41 +1,59 @@
-// backend/seed_admin.js
-const mysql = require('mysql2'); // o 'mysql2' kung iyon ang gamit mo
-const bcrypt = require('bcrypt'); // o 'bcryptjs'
+const mysql = require('mysql2');
+require('dotenv').config();
 
-// 1. Ilagay ang iyong MySQL Database credentials dito
+// Kukunin sa Render Environment Variables (o gagamit ng direct Aiven fallback kung sakali)
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',         
-    password: 'Roxas032920',         
-    database: 'lms_database'    
+  host: process.env.DB_HOST || 'mysql-2c26dd62-roxasprince1422-58a1.b.aivencloud.com',
+  user: process.env.DB_USER || 'avnadmin',
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME || 'defaultdb',
+  port: process.env.DB_PORT || 13880,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 db.connect((err) => {
-    if (err) throw err;
-    console.log('Connected to MySQL Database.');
+  if (err) {
+    console.error('Error connecting to Aiven MySQL:', err);
+    process.exit(1);
+  }
+  console.log('Successfully connected to Aiven MySQL Database!');
 
-    // 2. Ang mga detalye ng iyong Super Admin
-    const adminName = 'System Admin';
-    const adminEmail = 'admin@manlyplastics.com';
-    const adminPassword = 'adminpassword123'; // Ito ang gagamitin mo pang-login
-    const adminRole = 'Admin';
+  // 1. Lilikha ng users table kung wala pa
+  const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password VARCHAR(255) NOT NULL,
+      role VARCHAR(50) DEFAULT 'User',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
 
-    // 3. I-hash ang password bago i-save
-    bcrypt.hash(adminPassword, 10, (err, hash) => {
-        if (err) throw err;
+  db.query(createTableQuery, (err) => {
+    if (err) {
+      console.error('Error creating users table:', err);
+      process.exit(1);
+    }
+    console.log('Users table checked/created successfully.');
 
-        // 4. I-insert sa database (Siguraduhing tama ang table name, hal. 'users')
-        const sql = 'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)';
-        
-        db.query(sql, [adminName, adminEmail, hash, adminRole], (err, result) => {
-            if (err) {
-                console.error('Error inserting admin:', err);
-            } else {
-                console.log('✅ Success! Admin account created.');
-                console.log(`Email: ${adminEmail}`);
-                console.log(`Password: ${adminPassword}`);
-            }
-            process.exit(); // I-close ang script
-        });
+    // 2. Isi-seed ang Admin account
+    const seedAdminQuery = `
+      INSERT INTO users (name, email, password, role) 
+      VALUES ('System Admin', 'admin@manlyplastics.com', '$2b$10$BWg/cMLtO/GLbWg3TLGEM.QvKwEBK75.cLns0cgqNqz2NrqJ1ZXTa', 'Admin')
+      ON DUPLICATE KEY UPDATE name=name;
+    `;
+
+    db.query(seedAdminQuery, (err) => {
+      if (err) {
+        console.error('Error seeding admin user:', err);
+        process.exit(1);
+      }
+      console.log('Admin user seeded successfully!');
+      db.end();
+      process.exit(0);
     });
+  });
 });
