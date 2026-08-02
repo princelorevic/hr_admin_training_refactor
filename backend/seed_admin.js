@@ -1,57 +1,43 @@
 const mysql = require('mysql2');
-require('dotenv').config();
+const bcrypt = require('bcryptjs');
 
-// Kukunin sa Render Environment Variables (o gagamit ng direct Aiven fallback kung sakali)
+// Naka-hardcode na mismo dito para hindi na mag-rely sa terminal
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || 'mysql-2c26dd62-roxasprince1422-58a1.b.aivencloud.com',
-  user: process.env.DB_USER || 'avnadmin',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'defaultdb',
-  port: process.env.DB_PORT || 13880,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  host: 'mysql-2c26dd62-roxasprince1422-58a1.b.aivencloud.com',
+  user: 'avnadmin',
+  password: 'AVNS_Fa37zmAqoiScNtUSoqR',
+  database: 'defaultdb',
+  port: 13880,
+  ssl: { rejectUnauthorized: false }
 });
 
 db.connect((err) => {
   if (err) {
-    console.error('Error connecting to Aiven MySQL:', err);
+    console.error('Database connection error:', err);
     process.exit(1);
   }
-  console.log('Successfully connected to Aiven MySQL Database!');
 
-  // 1. Lilikha ng users table kung wala pa
-  const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) NOT NULL UNIQUE,
-      password VARCHAR(255) NOT NULL,
-      role VARCHAR(50) DEFAULT 'User',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  `;
+  const plainPassword = 'adminpassword123';
+  const adminEmail = 'admin@manlyplastics.com';
 
-  db.query(createTableQuery, (err) => {
+  bcrypt.hash(plainPassword, 10, (err, hashedPassword) => {
     if (err) {
-      console.error('Error creating users table:', err);
+      console.error('Hashing error:', err);
       process.exit(1);
     }
-    console.log('Users table checked/created successfully.');
 
-    // 2. Isi-seed ang Admin account
-    const seedAdminQuery = `
+    const seedQuery = `
       INSERT INTO users (name, email, password, role) 
-      VALUES ('System Admin', 'admin@manlyplastics.com', '$2b$10$BWg/cMLtO/GLbWg3TLGEM.QvKwEBK75.cLns0cgqNqz2NrqJ1ZXTa', 'Admin')
-      ON DUPLICATE KEY UPDATE name=name;
+      VALUES ('System Admin', '${adminEmail}', '${hashedPassword}', 'Admin')
+      ON DUPLICATE KEY UPDATE password='${hashedPassword}';
     `;
 
-    db.query(seedAdminQuery, (err) => {
+    db.query(seedQuery, (err) => {
       if (err) {
-        console.error('Error seeding admin user:', err);
+        console.error('Seed error:', err);
         process.exit(1);
       }
-      console.log('Admin user seeded successfully!');
+      console.log(' SUCCESS! Admin password updated to: adminpassword123');
       db.end();
       process.exit(0);
     });
