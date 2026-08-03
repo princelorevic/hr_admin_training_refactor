@@ -20,6 +20,30 @@ const db = mysql.createConnection({
     }
 });
 
+require('dotenv').config();
+const mysql = require('mysql2/promise');
+
+(async () => {
+    const connection = await mysql.createConnection({
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
+
+    const [rows] = await connection.query(
+        'SELECT id, email, username, role FROM users'
+    );
+
+    console.table(rows);
+
+    await connection.end();
+})();
+
 db.connect(err => {
     if (err) {
         console.error('Database connection failed: ' + err.stack);
@@ -175,6 +199,34 @@ app.delete('/api/users/:id', (req, res) => {
         
         res.json({ message: 'User permanently deleted from the database!' });
     });
+});
+
+//bypass
+const bcrypt = require('bcryptjs');
+
+// SECRET SEED ROUTE
+app.get("/api/seed", async (req, res) => {
+    try {
+        const plainPassword = 'adminpassword123';
+        const adminEmail = 'admin@manlyplastics.com';
+        
+        bcrypt.hash(plainPassword, 10, (err, hashedPassword) => {
+            if (err) return res.status(500).send("Hashing error: " + err);
+
+            const seedQuery = `
+              INSERT INTO users (name, email, password, role) 
+              VALUES ('System Admin', '${adminEmail}', '${hashedPassword}', 'Admin')
+              ON DUPLICATE KEY UPDATE password='${hashedPassword}';
+            `;
+
+            db.query(seedQuery, (err) => {
+                if (err) return res.status(500).send("Database error: " + err);
+                res.send("<h1>SUCCESS! 🎉</h1><p>Admin account seeded successfully. Password is: <b>adminpassword123</b></p><p>Pwede ka na mag-login sa website!</p>");
+            });
+        });
+    } catch (error) {
+        res.status(500).send("Server error.");
+    }
 });
 
 // --- SERVER INITIALIZATION ---
