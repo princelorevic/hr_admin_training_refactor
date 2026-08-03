@@ -8,7 +8,7 @@ async function handleLogin(event) {
 
     try {
         // Iko-connect natin ito sa Port 3000 Backend natin
-        const response = await fetch('http://localhost:3000/api/login', {
+        const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

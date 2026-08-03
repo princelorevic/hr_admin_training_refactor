@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/api/trainee/${traineeId}`);
+        const response = await fetch(`https://hr-admin-training-refactor.onrender.com/api/trainee/${traineeId}`);
         const traineeData = await response.json();
 
         if (response.ok) {

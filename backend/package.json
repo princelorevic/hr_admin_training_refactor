@@ -23,6 +23,7 @@
   "homepage": "https://github.com/roxasprince1422-bot/hr_admin_training_refactor#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

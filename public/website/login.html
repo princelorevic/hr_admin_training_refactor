@@ -130,10 +130,29 @@
 
             <div class="input-group">
                 <i class="bi bi-lock"></i>
-                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Password"
+                    required
+                    autocomplete="current-password"
+                    style="padding-right:45px;"
+                >
+
+                <i
+                    id="togglePassword"
+                    class="bi bi-eye"
+                    style="
+                        position:absolute;
+                        right:15px;
+                        left:auto;
+                        cursor:pointer;
+                        color:#64748b;">
+                </i>
             </div>
 
-            <button type="submit" class="login-btn-submit">Sign In</button>
+            <button type="submit" class="login-btn-submit" id="loginBtn"> Sign In </button>
         </form>
 
 
@@ -174,53 +193,106 @@
 }
     </script> -->
 
-     <script> //REAL CODESSSSSSSSSSSSSSSSSSSSSSSSSSS
-        async function handleLogin(event) {
-            // 1. Pipigilan ang pag-refresh ng page na galing sa unang function mo
-            event.preventDefault(); 
-            
-            // 2. Kukunin ang laman ng inputs
-            const email = document.getElementById('employeeId').value;
-            const password = document.getElementById('password').value;
+<script>
 
-            try {
-                // 3. Ikokonekta sa backend na galing sa pangalawang function mo
-                const response = await fetch('http://localhost:3000/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
+const API_URL = "https://hr-admin-training-refactor.onrender.com";
 
-                const data = await response.json();
+const togglePassword = document.getElementById("togglePassword");
+const passwordInput = document.getElementById("password");
 
-                if (!response.ok) {
-                    alert(data.error || 'Login failed');
-                    return;
-                }
+togglePassword.addEventListener("click", () => {
 
-                // Tagumpay ang login! I-save ang user info sa LocalStorage
-                localStorage.setItem('userId', data.user.id);
-                localStorage.setItem('userName', data.user.name);
-                localStorage.setItem('userRole', data.user.role);
+    if(passwordInput.type === "password"){
 
-                // I-route ang user base sa kanilang Role
-                if (data.user.role === 'Trainee') {
-                    window.location.href = '../views/trainee/index_trainee.html';
-                } else if (data.user.role === 'Admin') {
-                    window.location.href = '../index_admin.html';
-                } else {
-                    // Fallback para sa HR o ibang role
-                    window.location.href = '../index_admin.html';
-                }
-                
-            } catch (error) {
-                console.error('Error during login:', error);
-                alert('Cannot connect to the server.');
-            }
+        passwordInput.type = "text";
+        togglePassword.classList.remove("bi-eye");
+        togglePassword.classList.add("bi-eye-slash");
+
+    }else{
+
+        passwordInput.type = "password";
+        togglePassword.classList.remove("bi-eye-slash");
+        togglePassword.classList.add("bi-eye");
+
+    }
+
+});
+
+async function handleLogin(event){
+
+    event.preventDefault();
+
+    const loginBtn = document.getElementById("loginBtn");
+
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = "Signing In...";
+
+    const email = document.getElementById("employeeId").value.trim();
+    const password = passwordInput.value;
+
+    try{
+
+        const response = await fetch(`${API_URL}/api/login`,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                email,
+                password
+            })
+
+        });
+
+        const data = await response.json();
+
+        if(!response.ok){
+
+            alert(data.error || "Login Failed.");
+
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = "Sign In";
+
+            return;
         }
-    </script> 
+
+        localStorage.setItem("userId",data.user.id);
+        localStorage.setItem("userName",data.user.name);
+        localStorage.setItem("userRole",data.user.role);
+
+        switch(data.user.role){
+
+            case "Trainee":
+                window.location.href="../views/trainee/index_trainee.html";
+                break;
+
+            case "Admin":
+                window.location.href="../index_admin.html";
+                break;
+
+            default:
+                window.location.href="../index_admin.html";
+
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert("Unable to connect to the server.\n\nIf you are using the free Render server, wait around 30–60 seconds and try again.");
+
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = "Sign In";
+
+    }
+
+}
+
+</script>
 
 </body>
 </html>

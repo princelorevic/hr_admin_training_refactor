@@ -58,7 +58,7 @@
     if (activeTargetDeleteType === 'USER') {
       // BAGONG DATABASE-DRIVEN DELETE LOGIC
       try {
-        const response = await fetch(`http://localhost:3000/api/users/${activeTargetDeleteIndex}`, {
+        const response = await fetch(`https://hr-admin-training-refactor.onrender.com/api/users/${activeTargetDeleteIndex}`, {
             method: 'DELETE'
         });
         
@@ -1317,7 +1317,7 @@ window.onload = function(e) {
 // 1. Fetch data mula sa backend imbes na sa local variable
 async function fetchCourseEnrollments(courseTitle) {
     try {
-        const response = await fetch(`http://localhost:3000/api/enrollments/${encodeURIComponent(courseTitle)}`);
+        const response = await fetch(`https://hr-admin-training-refactor.onrender.com/api/enrollments/${encodeURIComponent(courseTitle)}`);
         if (!response.ok) throw new Error("Failed to fetch enrollments");
         
         const data = await response.json();
@@ -1403,7 +1403,7 @@ executeEnrollUserActionToActiveCourse = async function(name, role, dept) {
     };
 
     try {
-        const response = await fetch('http://localhost:3000/api/enrollments', {
+        const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/enrollments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

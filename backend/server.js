@@ -117,6 +117,18 @@ app.get('/api/trainee/:id', (req, res) => {
     });
 });
 
+app.get("/", (req, res) => {
+
+    res.json({
+
+        status: "success",
+        message: "Enterprise LMS Backend API",
+        version: "1.0.0"
+
+    });
+
+});
+
 // --- API: UPDATE USER ---
 app.put('/api/users/:id', async (req, res) => {
     const userId = req.params.id;

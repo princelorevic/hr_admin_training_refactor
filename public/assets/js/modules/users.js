@@ -63,7 +63,7 @@ async function handleUserCrudSubmissionPipeline(event) {
         assessment_link: googleFormLink  
     };
     
-    const url = isEditing ? `http://localhost:3000/api/users/${editId}` : 'http://localhost:3000/api/users';
+    const url = isEditing ? `https://hr-admin-training-refactor.onrender.com/api/users/${editId}` : 'https://hr-admin-training-refactor.onrender.com/api/users';
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
@@ -93,7 +93,7 @@ async function handleUserCrudSubmissionPipeline(event) {
 // ==========================================
 async function fetchAndDisplayUsers() {
     try {
-        const response = await fetch('http://localhost:3000/api/users');
+        const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/users');
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -224,7 +224,7 @@ async function loadSupervisorDropdown() {
         const dropdown = document.getElementById('inUserSupervisor');
         if(!dropdown) return;
 
-        const response = await fetch('http://localhost:3000/api/users');
+        const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/users');
         const users = await response.json();
         
         dropdown.innerHTML = '<option value="">Select Supervisor</option>';
