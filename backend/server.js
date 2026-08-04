@@ -71,19 +71,35 @@ app.post('/api/users', async (req, res) => {
 // --- API: LOGIN ---
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
+
+    console.log("Email received:", email);
+    console.log("Password received:", password);
+
     const sql = `SELECT * FROM users WHERE email = ?`;
-    
+
     db.query(sql, [email], async (err, results) => {
+        console.log("Results:", results);
+
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(401).json({ error: 'Invalid email or password.' });
 
         const user = results[0];
+
+        console.log("Stored hash:", user.password);
+
         const isMatch = await bcrypt.compare(password, user.password);
+
+        console.log("Password match:", isMatch);
+
         if (!isMatch) return res.status(401).json({ error: 'Invalid email or password.' });
 
-        res.json({ 
-            message: 'Login successful', 
-            user: { id: user.id, name: user.name, role: user.role }
+        res.json({
+            message: 'Login successful',
+            user: {
+                id: user.id,
+                name: user.name,
+                role: user.role
+            }
         });
     });
 });
