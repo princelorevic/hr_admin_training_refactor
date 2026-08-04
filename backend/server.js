@@ -198,9 +198,6 @@ app.delete('/api/users/:id', (req, res) => {
     });
 });
 
-//bypass
-const bcrypt = require('bcryptjs');
-
 // SECRET SEED ROUTE
 app.get("/api/seed", async (req, res) => {
     try {
