@@ -16,30 +16,10 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME,
     port: process.env.DB_PORT,
     ssl: {
-        rejectUnauthorized
-    }
+    rejectUnauthorized: false
+}
 });
 
-(async () => {
-    const connection = await mysql.createConnection({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        ssl: {
-            rejectUnauthorized: false
-        }
-    });
-
-    const [rows] = await connection.query(
-        'SELECT id, email, username, role FROM users'
-    );
-
-    console.table(rows);
-
-    await connection.end();
-})();
 
 db.connect(err => {
     if (err) {
