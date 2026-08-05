@@ -486,19 +486,33 @@
                                 <input type="url" class="url" id="inGoogleFormLink" placeholder="https://forms.gle/...">
                             </div>
 
-                            <!-- LEARNING TAG RESULT DROPDOWN -->
-                            <div class="form-group mb-3" id="learningTagResultContainer">
-                                <label for="inLearningTagResult" class="fw-bold">Assessment Result / Learning Tag:</label>
-                                <select class="form-select" id="inLearningTagResult">
-                                    <option value="Not Assessed">Not Assessed (Pending)</option>
-                                    <option value="Visual">Visual</option>
-                                    <option value="Auditory">Auditory</option>
-                                    <option value="Kinesthetic">Kinesthetic</option>
-                                    <option value="Logical">Logical</option>
-                                    <option value="Verbal">Verbal</option>
-                                </select>
-                                <small class="text-muted">Piliin ang resulta mula sa Google Sheet. I-set sa "Not Assessed" kung kailangan pa nilang mag-exam.</small>
-                            </div>
+                            <!-- LEARNING TAG RESULT CHECKBOXES -->
+                              <div class="form-group mb-3" id="learningTagResultContainer">
+                                  <label class="fw-bold">Assessment Result / Learning Tag (Select all that apply):</label>
+                                  
+                                  <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 8px; font-size: 13px;">
+                                      <label style="display: flex; align-items: center; cursor: pointer;">
+                                          <input type="checkbox" class="chk-learning-style" value="Not Assessed" style="margin-right: 5px;"> Not Assessed (Pending)
+                                      </label>
+                                      <label style="display: flex; align-items: center; cursor: pointer;">
+                                          <input type="checkbox" class="chk-learning-style" value="Visual" style="margin-right: 5px;"> Visual
+                                      </label>
+                                      <label style="display: flex; align-items: center; cursor: pointer;">
+                                          <input type="checkbox" class="chk-learning-style" value="Auditory" style="margin-right: 5px;"> Auditory
+                                      </label>
+                                      <label style="display: flex; align-items: center; cursor: pointer;">
+                                          <input type="checkbox" class="chk-learning-style" value="Kinesthetic" style="margin-right: 5px;"> Kinesthetic
+                                      </label>
+                                      <label style="display: flex; align-items: center; cursor: pointer;">
+                                          <input type="checkbox" class="chk-learning-style" value="Logical" style="margin-right: 5px;"> Logical
+                                      </label>
+                                      <label style="display: flex; align-items: center; cursor: pointer;">
+                                          <input type="checkbox" class="chk-learning-style" value="Verbal" style="margin-right: 5px;"> Verbal
+                                      </label>
+                                  </div>
+                                  
+                                  <small class="text-muted" style="display: block; margin-top: 8px;">Piliin ang mga resulta mula sa Google Sheet. Pwede kang pumili ng higit sa isa (halimbawa: Visual at Auditory).</small>
+                              </div>
 
                         </div>
 

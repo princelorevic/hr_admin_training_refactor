@@ -40,9 +40,15 @@ async function handleUserCrudSubmissionPipeline(event) {
         return; // Haharang lang kung bagong user
     }
 
-    // Kunin ang values ng Learning Tag at Google Form Link
-    const learningTagResultElement = document.getElementById('inLearningTagResult');
-    const learningTagResult = learningTagResultElement ? learningTagResultElement.value : 'Not Assessed';
+    // 🔥 BAGONG LOGIC PARA SA CHECKBOXES: Kunin ang values ng Learning Tag
+    let selectedStyles = [];
+    let checkboxes = document.querySelectorAll('.chk-learning-style:checked');
+    checkboxes.forEach((cb) => {
+        selectedStyles.push(cb.value);
+    });
+    
+    // Pagsamahin ang mga pinili into a single string (e.g., "Visual, Auditory")
+    const learningTagResult = selectedStyles.length > 0 ? selectedStyles.join(', ') : 'Not Assessed';
     
     let googleFormLink = '';
     const chkLearningTag = document.getElementById('chkLearningTag');
