@@ -10,6 +10,10 @@ let editId = null;
 async function handleUserCrudSubmissionPipeline(event) {
     event.preventDefault();
 
+    // 1. KUNIN ANG BUTTON AT I-SAVE ANG ORIGINAL TEXT NITO
+    const btnSubmit = document.getElementById('btnUserFormAction');
+    const originalBtnText = btnSubmit.innerText;
+
     const firstName = document.getElementById('inUserFirst').value.trim();
     const middleName = document.getElementById('inUserMiddle').value.trim();
     const lastName = document.getElementById('inUserLast').value.trim();
@@ -26,32 +30,30 @@ async function handleUserCrudSubmissionPipeline(event) {
         supervisor_id = parseInt(supervisorElement.value) || null; 
     }
 
-    // 🔥 AI REQUIREMENT VALIDATION BLOCK (BYPASS KAPAG EDITING)
+    // AI REQUIREMENT VALIDATION BLOCK (BYPASS KAPAG EDITING)
     const geminiLinkInput = document.getElementById('inGeminiLink');
     const geminiLink = geminiLinkInput ? geminiLinkInput.value.trim() : '';
 
-    // I-CH-CHECK LANG ANG AI LINK KUNG "BAGO" (isEditing === false)
     if (!isEditing && role === 'Trainee' && geminiLink === '') {
         const aiPanel = document.getElementById('traineeAiRequirementPanel');
         if(aiPanel) {
             aiPanel.style.border = "2px solid red";
             setTimeout(() => aiPanel.style.border = "1px solid #e2e8f0", 3000);
         }
-        return; // Haharang lang kung bagong user
+        return; 
     }
 
-    // 🔥 BAGONG LOGIC PARA SA CHECKBOXES: Kunin ang values ng Learning Tag
+    // KUNIN ANG VALUES NG LEARNING TAG CHECKBOXES
     let selectedStyles = [];
     let checkboxes = document.querySelectorAll('.chk-learning-style:checked');
     checkboxes.forEach((cb) => {
         selectedStyles.push(cb.value);
     });
     
-    // Pagsamahin ang mga pinili into a single string (e.g., "Visual, Auditory")
     const learningTagResult = selectedStyles.length > 0 ? selectedStyles.join(', ') : 'Not Assessed';
     
     let googleFormLink = '';
-    const chkLearningTag = document.getElementById('chkLearningTag');
+    const chkLearningTag = document.getElementById('chkTag'); // Make sure ID matches your HTML
     if (chkLearningTag && chkLearningTag.checked) {
         const linkInput = document.getElementById('inGoogleFormLink');
         googleFormLink = linkInput ? linkInput.value.trim() : '';
@@ -60,7 +62,7 @@ async function handleUserCrudSubmissionPipeline(event) {
     const userData = {
         name: fullName,
         email: email,
-        password: password, // Kung edit ito at blank ang password, hahayaan na lang ito ng server
+        password: password, 
         role: role,
         supervisor_id: supervisor_id,
         product_assignment: 'LMS System',
@@ -71,6 +73,12 @@ async function handleUserCrudSubmissionPipeline(event) {
     
     const url = isEditing ? `https://hr-admin-training-refactor.onrender.com/api/users/${editId}` : 'https://hr-admin-training-refactor.onrender.com/api/users';
     const method = isEditing ? 'PUT' : 'POST';
+
+    // 2. I-ACTIVATE ANG LOADING ANIMATION SA BUTTON
+    btnSubmit.innerText = '⏳ Saving... Please wait';
+    btnSubmit.disabled = true;
+    btnSubmit.style.cursor = 'not-allowed';
+    btnSubmit.style.opacity = '0.7';
 
     try {
         const response = await fetch(url, {
@@ -90,7 +98,13 @@ async function handleUserCrudSubmissionPipeline(event) {
         }
     } catch (error) {
         console.error('Error creating user:', error);
-        alert('Server is offline or cannot be reached.');
+        alert('Server is offline or starting up. Please try again in a few seconds.');
+    } finally {
+        // 3. IBALIK SA NORMAL ANG BUTTON KAHIT SUCCESS O ERROR
+        btnSubmit.innerText = originalBtnText;
+        btnSubmit.disabled = false;
+        btnSubmit.style.cursor = 'pointer';
+        btnSubmit.style.opacity = '1';
     }
 }
 
