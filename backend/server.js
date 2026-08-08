@@ -140,84 +140,99 @@ app.post('/api/users', async (req, res) => {
 
 // --- API: LOGIN ---
 app.post('/api/login', async (req, res) => {
-
     const { username, password } = req.body;
 
     console.log("Username received:", username);
 
     const sql = `
         SELECT
-            u.*,
+            u.id,
+            u.name,
+            u.username,
+            u.password,
+            u.role_id,
             r.role_name
         FROM users u
         INNER JOIN roles r
             ON u.role_id = r.role_id
-        WHERE u.username = ?;
+        WHERE u.username = ?
     `;
 
     db.query(sql, [username], async (err, results) => {
-
-        if (err)
+        if (err) {
+            console.error("Login database error:", err);
             return res.status(500).json({ error: err.message });
+        }
 
-        if (results.length === 0)
+        if (results.length === 0) {
             return res.status(401).json({
                 error: "Invalid username or password."
             });
+        }
 
         const user = results[0];
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        try {
+            const isMatch = await bcrypt.compare(password, user.password);
 
-        if (!isMatch)
-            return res.status(401).json({
-                error: "Invalid username or password."
+            if (!isMatch) {
+                return res.status(401).json({
+                    error: "Invalid username or password."
+                });
+            }
+
+            res.json({
+                message: "Login successful",
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    name: user.name,
+                    role: user.role_name
+                }
             });
 
-        const fullName =
-            `${user.first_name} ${user.middle_name || ""} ${user.last_name}`
-                .replace(/\s+/g, " ")
-                .trim();
-
-        res.json({
-            message: "Login successful",
-            user: {
-                id: user.user_id,
-                username: user.username,
-                name: fullName,
-                role: user.role_name
-            }
-        });
-
+        } catch (error) {
+            console.error("Password verification error:", error);
+            return res.status(500).json({
+                error: "Login verification failed."
+            });
+        }
     });
-
 });
 
 // --- API: GET ALL USERS ---
 app.get('/api/users', (req, res) => {
     const sql = `
-        SELECT 
-            user_id,
-            employee_no,
-            first_name,
-            middle_name,
-            last_name,
-            username,
-            role_id,
-            supervisor_id,
-            industry_assignment,
-            style,
-            assessment_link,
-            learning_style_required,
-            created_at
-        FROM users
-        ORDER BY user_id DESC
+        SELECT
+            u.user_id AS id,
+            u.employee_no,
+            u.first_name,
+            u.middle_name,
+            u.last_name,
+            u.suffix,
+            u.username,
+            u.role_id,
+            r.role_name AS role,
+            u.status,
+            u.is_first_login,
+            u.last_login,
+            u.learning_style_required,
+            u.profile_picture,
+            u.created_at,
+            u.updated_at
+        FROM users u
+        LEFT JOIN roles r
+            ON u.role_id = r.role_id
+        WHERE u.deleted_at IS NULL
+        ORDER BY u.user_id DESC
     `;
 
     db.query(sql, (err, results) => {
         if (err) {
-            console.error("Error loading users:", err);
-            return res.status(500).json({ error: err.message });
+            console.error('Error loading users:', err);
+            return res.status(500).json({
+                error: err.message
+            });
         }
 
         res.json(results);
