@@ -19,11 +19,11 @@ async function handleUserCrudSubmissionPipeline(event) {
     const lastName = document.getElementById('inUserLast').value.trim();
     const fullName = middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`;
 
-    const email = document.getElementById('inUserGmail').value;
+    const username = document.getElementById('inUsername').value.trim();
     const password = document.getElementById('inUserPass').value;
     const role = document.getElementById('inUserRole').value;
     const department = document.getElementById('inUserDept').value;
-    
+
     const supervisorElement = document.getElementById('inUserSupervisor');
     let supervisor_id = null;
     if (supervisorElement && supervisorElement.value && supervisorElement.value !== "null") {
@@ -49,9 +49,9 @@ async function handleUserCrudSubmissionPipeline(event) {
     checkboxes.forEach((cb) => {
         selectedStyles.push(cb.value);
     });
-    
+
     const learningTagResult = selectedStyles.length > 0 ? selectedStyles.join(', ') : 'Not Assessed';
-    
+
     let googleFormLink = '';
     const chkLearningTag = document.getElementById('chkTag'); // Make sure ID matches your HTML
     if (chkLearningTag && chkLearningTag.checked) {
@@ -59,18 +59,23 @@ async function handleUserCrudSubmissionPipeline(event) {
         googleFormLink = linkInput ? linkInput.value.trim() : '';
     }
 
+    const learningStyleRequired = (chkLearningTag && chkLearningTag.checked) ? 1 : 0;
+
     const userData = {
-        name: fullName,
-        email: email,
-        password: password, 
+        first_name: firstName,
+        middle_name: middleName || null,
+        last_name: lastName,
+        username: username,
+        password: password,
         role: role,
         supervisor_id: supervisor_id,
         product_assignment: 'LMS System',
         industry_assignment: department,
-        style: learningTagResult,        
-        assessment_link: googleFormLink  
+        style: learningTagResult,
+        assessment_link: googleFormLink,
+        learning_style_required: learningStyleRequired
     };
-    
+
     const url = isEditing ? `https://hr-admin-training-refactor.onrender.com/api/users/${editId}` : 'https://hr-admin-training-refactor.onrender.com/api/users';
     const method = isEditing ? 'PUT' : 'POST';
 
@@ -420,4 +425,41 @@ function toggleLearningTagPanel() {
         panel.classList.add('hidden');
         document.getElementById('inGoogleFormLink').value = ''; // i-clear pag inuncheck
     }
+}
+
+// --- LOGOUT CONFIRMATION FUNCTIONS ---
+
+function promptLogoutConfirmation() {
+    // Ipakita ang pop-up
+    document.getElementById('logoutModalOverlay').classList.remove('hidden');
+}
+
+function closeLogoutModal() {
+    // Itago ang pop-up kung pinindot ang Cancel
+    document.getElementById('logoutModalOverlay').classList.add('hidden');
+}
+
+function executeLogout() {
+    // Dito mo ilalagay ang logic mo kung may kailangang i-clear na sessionStorage/localStorage
+    // Pagkatapos ay ire-redirect pabalik sa login page
+    window.location.href = './website/login.html';
+}
+
+function generateUsername() {
+
+    const first = document.getElementById("inUserFirst").value
+        .trim()
+        .toLowerCase();
+
+    const last = document.getElementById("inUserLast").value
+        .trim()
+        .toLowerCase();
+
+    const usernameInput = document.getElementById("inUsername");
+
+    if (!usernameInput) return;
+
+    usernameInput.value = (first + last)
+        .replace(/\s+/g, "")
+        .replace(/[^a-z0-9]/g, "");
 }

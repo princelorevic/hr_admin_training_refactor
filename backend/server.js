@@ -31,99 +31,216 @@ db.connect(err => {
 
 // --- API: CREATE USER ---
 app.post('/api/users', async (req, res) => {
-    const { name, email, password, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link } = req.body;
-    
+
+    const {
+        name,
+        email,
+        password,
+        role,
+        supervisor_id,
+        product_assignment,
+        industry_assignment,
+        style,
+        assessment_link,
+        learning_style_required
+    } = req.body;
+
     try {
+
         const hashedPassword = await bcrypt.hash(password, 10);
-        
+
         const insertUserSql = `
-            INSERT INTO users 
-            (name, email, password, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users
+            (
+                name,
+                email,
+                password,
+                role,
+                supervisor_id,
+                product_assignment,
+                industry_assignment,
+                style,
+                assessment_link,
+                learning_style_required
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        
-        db.query(insertUserSql, [name, email, hashedPassword, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link], (err, result) => {
-            if (err) {
-                if (err.code === 'ER_DUP_ENTRY') return res.status(400).json({ error: 'Email already registered.' });
-                return res.status(500).json({ error: err.message });
-            }
 
-            const newUserId = result.insertId;
+        db.query(
+            insertUserSql,
+            [
+                name,
+                email,
+                hashedPassword,
+                role,
+                supervisor_id,
+                product_assignment,
+                industry_assignment,
+                style,
+                assessment_link,
+                learning_style_required
+            ],
+            (err, result) => {
 
-            if (role === 'Trainee') {
-                const insertKpiSql = `INSERT INTO kpi_agents (trainee_id) VALUES (?)`;
-                db.query(insertKpiSql, [newUserId], (kpiErr) => {
-                    if (kpiErr) {
-                        console.error("Failed to generate KPI Agent: ", kpiErr);
-                        return res.status(201).json({ message: 'User created, but KPI Agent provisioning failed.', userId: newUserId });
+                if (err) {
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        return res.status(400).json({ error: 'Email already registered.' });
                     }
-                    return res.status(201).json({ message: 'Trainee account created and KPI Agent successfully provisioned!', userId: newUserId });
-                });
-            } else {
-                return res.status(201).json({ message: 'User account created successfully!', userId: newUserId });
+                    return res.status(500).json({ error: err.message });
+                }
+
+                const newUserId = result.insertId;
+
+                if (role === 'Trainee') {
+
+                    const insertKpiSql = `
+                        INSERT INTO kpi_agents (trainee_id)
+                        VALUES (?)
+                    `;
+
+                    db.query(insertKpiSql, [newUserId], (kpiErr) => {
+
+                        if (kpiErr) {
+                            console.error("Failed to generate KPI Agent:", kpiErr);
+
+                            return res.status(201).json({
+                                message: 'User created, but KPI Agent provisioning failed.',
+                                userId: newUserId
+                            });
+                        }
+
+                        return res.status(201).json({
+                            message: 'Trainee account created and KPI Agent successfully provisioned!',
+                            userId: newUserId
+                        });
+
+                    });
+
+                } else {
+
+                    return res.status(201).json({
+                        message: 'User account created successfully!',
+                        userId: newUserId
+                    });
+
+                }
+
             }
-        });
+        );
+
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+
+        res.status(500).json({
+            error: 'Internal Server Error'
+        });
+
     }
+
 });
 
 // --- API: LOGIN ---
-app.post('/api/login', (req, res) => {
-    const { email, password } = req.body;
+app.post('/api/login', async (req, res) => {
 
-    console.log("Email received:", email);
-    console.log("Password received:", password);
+    const { username, password } = req.body;
 
-    const sql = `SELECT * FROM users WHERE email = ?`;
+    console.log("Username received:", username);
 
-    db.query(sql, [email], async (err, results) => {
-        console.log("Results:", results);
+    const sql = `
+        SELECT
+            u.*,
+            r.role_name
+        FROM users u
+        INNER JOIN roles r
+            ON u.role_id = r.role_id
+        WHERE u.username = ?;
+    `;
 
-        if (err) return res.status(500).json({ error: err.message });
-        if (results.length === 0) return res.status(401).json({ error: 'Invalid email or password.' });
+    db.query(sql, [username], async (err, results) => {
+
+        if (err)
+            return res.status(500).json({ error: err.message });
+
+        if (results.length === 0)
+            return res.status(401).json({
+                error: "Invalid username or password."
+            });
 
         const user = results[0];
 
-        console.log("Stored hash:", user.password);
-
         const isMatch = await bcrypt.compare(password, user.password);
 
-        console.log("Password match:", isMatch);
+        if (!isMatch)
+            return res.status(401).json({
+                error: "Invalid username or password."
+            });
 
-        if (!isMatch) return res.status(401).json({ error: 'Invalid email or password.' });
+        const fullName =
+            `${user.first_name} ${user.middle_name || ""} ${user.last_name}`
+                .replace(/\s+/g, " ")
+                .trim();
 
         res.json({
-            message: 'Login successful',
+            message: "Login successful",
             user: {
-                id: user.id,
-                name: user.name,
-                role: user.role
+                id: user.user_id,
+                username: user.username,
+                name: fullName,
+                role: user.role_name
             }
         });
+
     });
+
 });
 
 // --- API: GET ALL USERS ---
 app.get('/api/users', (req, res) => {
     const sql = `
-        SELECT id, name, email, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link, created_at 
+        SELECT 
+            user_id,
+            employee_no,
+            first_name,
+            middle_name,
+            last_name,
+            username,
+            role_id,
+            supervisor_id,
+            industry_assignment,
+            style,
+            assessment_link,
+            learning_style_required,
+            created_at
         FROM users
+        ORDER BY user_id DESC
     `;
-    
+
     db.query(sql, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            console.error("Error loading users:", err);
+            return res.status(500).json({ error: err.message });
+        }
+
         res.json(results);
-    }); 
+    });
 });
 
 // --- API: GET TRAINEE PROFILE ---
 app.get('/api/trainee/:id', (req, res) => {
     const traineeId = req.params.id;
     const sql = `
-        SELECT id, name, email, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link, created_at 
-        FROM users 
-        WHERE id = ? AND role = 'Trainee'
+        SELECT id,
+       name,
+       email,
+       role,
+       supervisor_id,
+       product_assignment,
+       industry_assignment,
+       style,
+       assessment_link,
+       learning_style_required,
+       created_at
+        FROM users
+            WHERE id = ? AND role = 'Trainee'
     `;
                  
     db.query(sql, [traineeId], (err, results) => {

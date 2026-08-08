@@ -33,20 +33,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             googleFormLinkFromAdmin = traineeData.google_form_url || traineeData.assessment_link; 
             
             // I-check kung may learning tag na siya (tulad ng Visual, Auditory, etc.)
-            const hasLearningTag = traineeData.style && traineeData.style !== 'Not Assessed' && traineeData.style !== '';
-            
-            // TINANGGAL NATIN YUNG LINK REQUIREMENT DITO PARA LUMABAS ULIT ANG POPUP
-            if (!hasLearningTag) {
-                
-                // Kung walang nakuhang link sa database (dahil test account), gagamit muna tayo ng dummy link
+            const hasLearningTag =
+                traineeData.style &&
+                traineeData.style !== 'Not Assessed' &&
+                traineeData.style !== '';
+
+            const isLearningStyleRequired =
+                traineeData.learning_style_required == 1;
+
+            if (isLearningStyleRequired && !hasLearningTag) {
+
                 if (!googleFormLinkFromAdmin) {
                     console.log("Walang link sa database. Gumagamit ng test link...");
-                    googleFormLinkFromAdmin = "https://docs.google.com/forms/"; 
+                    googleFormLinkFromAdmin = "https://docs.google.com/forms/";
                 }
 
-                const onboardingModal = new bootstrap.Modal(document.getElementById('onboardingModal'));
+                const onboardingModal =
+                    new bootstrap.Modal(
+                        document.getElementById('onboardingModal')
+                    );
+
                 onboardingModal.show();
-            }
+                }
         }
     } catch (error) {
         console.error("Hindi maka-connect sa server:", error);

@@ -125,7 +125,7 @@
             
             <div class="input-group">
                 <i class="bi bi-person"></i>
-                <input type="text" id="employeeId" placeholder="Email" required autocomplete="username">
+                <input type="text" id="employeeId" placeholder="Username" required autocomplete="username">
             </div>
 
             <div class="input-group">
@@ -227,7 +227,9 @@ async function handleLogin(event){
     loginBtn.disabled = true;
     loginBtn.innerHTML = "Signing In...";
 
-    const email = document.getElementById("employeeId").value.trim();
+    const username =
+    document.getElementById("employeeId").value.trim();
+
     const password = passwordInput.value;
 
     try{
@@ -240,8 +242,8 @@ async function handleLogin(event){
                 "Content-Type":"application/json"
             },
 
-            body:JSON.stringify({
-                email,
+            body: JSON.stringify({
+                username,
                 password
             })
 
