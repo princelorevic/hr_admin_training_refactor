@@ -204,32 +204,21 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/users', (req, res) => {
     const sql = `
         SELECT
-            u.user_id AS id,
-            u.employee_no,
-            u.first_name,
-            u.middle_name,
-            u.last_name,
-            u.suffix,
+            u.id,
+            u.name,
             u.username,
             u.role_id,
             r.role_name AS role,
-            u.status,
-            u.is_first_login,
-            u.last_login,
-            u.learning_style_required,
-            u.profile_picture,
-            u.created_at,
-            u.updated_at
+            u.created_at
         FROM users u
         LEFT JOIN roles r
             ON u.role_id = r.role_id
-        WHERE u.deleted_at IS NULL
-        ORDER BY u.user_id DESC
+        ORDER BY u.id DESC
     `;
 
     db.query(sql, (err, results) => {
         if (err) {
-            console.error('Error loading users:', err);
+            console.error("Error loading users:", err);
             return res.status(500).json({
                 error: err.message
             });
@@ -279,38 +268,36 @@ app.get("/", (req, res) => {
 });
 
 // --- API: UPDATE USER ---
-app.put('/api/users/:id', async (req, res) => {
-    const userId = req.params.id;
-    const { name, email, password, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link } = req.body;
-    
-    try {
-        let sql;
-        let queryParams;
+app.get('/api/users', (req, res) => {
+    const sql = `
+        SELECT
+            u.user_id,
+            u.employee_no,
+            u.first_name,
+            u.middle_name,
+            u.last_name,
+            u.suffix,
+            u.username,
+            u.password,
+            u.role_id,
+            r.role_name,
+            u.status,
+            u.supervisor_id,
+            u.created_at
+        FROM users u
+        LEFT JOIN roles r
+            ON u.role_id = r.role_id
+        ORDER BY u.user_id DESC
+    `;
 
-        if (password && password.trim() !== "") {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            sql = `
-                UPDATE users 
-                SET name = ?, email = ?, password = ?, role = ?, supervisor_id = ?, product_assignment = ?, industry_assignment = ?, style = ?, assessment_link = ? 
-                WHERE id = ?
-            `;
-            queryParams = [name, email, hashedPassword, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link, userId];
-        } else {
-            sql = `
-                UPDATE users 
-                SET name = ?, email = ?, role = ?, supervisor_id = ?, product_assignment = ?, industry_assignment = ?, style = ?, assessment_link = ? 
-                WHERE id = ?
-            `;
-            queryParams = [name, email, role, supervisor_id, product_assignment, industry_assignment, style, assessment_link, userId];
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error loading users:', err);
+            return res.status(500).json({ error: err.message });
         }
-        
-        db.query(sql, queryParams, (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: 'User account updated successfully!' });
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+
+        res.json(results);
+    });
 });
 
 // --- API: DELETE USER ---
