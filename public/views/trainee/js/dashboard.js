@@ -15,6 +15,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const traineeData = await response.json();
 
         if (response.ok) {
+
+            // ============================================================
+            // LOAD KPI AGENT REQUIREMENT
+            // ============================================================
+
+            // console.log("========== TRAINING REQUIREMENTS ==========");
+            // console.log("Trainee ID:", traineeId);
+            // console.log("Learning Style Required:", traineeData.learning_style_required);
+            // console.log("Learning Style:", traineeData.style);
+            // console.log("KPI Agent:", kpiAgentData);
+
             // 1. I-display sa UI
             if(document.getElementById('userGreeting')) document.getElementById('userGreeting').innerText = `Welcome, ${traineeData.name}!`;
             if(document.getElementById('profileName')) document.getElementById('profileName').value = traineeData.name;
@@ -29,32 +40,154 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadDashboardData(); 
             }
 
-            // 3. ✨ LOGIC PARA SA FIRST-TIME POPUP
-            googleFormLinkFromAdmin = traineeData.google_form_url || traineeData.assessment_link; 
-            
-            // I-check kung may learning tag na siya (tulad ng Visual, Auditory, etc.)
+            // ============================================================
+            // 3. TRAINING REQUIREMENTS
+            // ============================================================
+
+            googleFormLinkFromAdmin =
+                traineeData.google_form_url ||
+                traineeData.assessment_link ||
+                '';
+
+            // ------------------------------------------------------------
+            // LEARNING STYLE REQUIREMENT
+            // ------------------------------------------------------------
+
             const hasLearningTag =
                 traineeData.style &&
                 traineeData.style !== 'Not Assessed' &&
-                traineeData.style !== '';
+                traineeData.style.trim() !== '';
 
-            const isLearningStyleRequired =
-                traineeData.learning_style_required == 1;
+            // 1. I-check kung may valid na Google Form link
+            const hasGoogleFormLink = googleFormLinkFromAdmin && googleFormLinkFromAdmin.trim() !== '';
 
-            if (isLearningStyleRequired && !hasLearningTag) {
+            // 2. Kung may link at wala pang learning style result, pending siya!
+            const learningStylePending = hasGoogleFormLink && !hasLearningTag;
+            
+            // Re-assign natin itong variable para tama ang log sa console
+            const isLearningStyleRequired = hasGoogleFormLink;
 
-                if (!googleFormLinkFromAdmin) {
-                    console.log("Walang link sa database. Gumagamit ng test link...");
-                    googleFormLinkFromAdmin = "https://docs.google.com/forms/";
+            // ------------------------------------------------------------
+            // KPI AGENT REQUIREMENT
+            // ------------------------------------------------------------
+
+            const kpiAgentData =
+                await loadTraineeKpiAgent(traineeId);
+
+            const kpiAgentPending =
+                !kpiAgentData.assigned;
+
+            // ------------------------------------------------------------
+            // DEBUG
+            // ------------------------------------------------------------
+
+            console.log("========== TRAINING REQUIREMENTS ==========");
+            console.log("Trainee ID:", traineeId);
+            console.log("Learning Style Required:", isLearningStyleRequired);
+            console.log("Learning Style:", traineeData.style);
+            console.log("Learning Style Pending:", learningStylePending);
+            console.log("KPI Agent:", kpiAgentData);
+
+            console.log("KPI Agent Pending:", kpiAgentPending);
+            // ============================================================
+            // 4. BIND GEMINI LINK TO UI BUTTON
+            // ============================================================
+            if (kpiAgentData && kpiAgentData.gem_link) {
+                const btnOpenGemini = document.getElementById('btnOpenGemini');
+                if (btnOpenGemini) {
+                    btnOpenGemini.href = kpiAgentData.gem_link;
                 }
+            }
 
-                const onboardingModal =
-                    new bootstrap.Modal(
-                        document.getElementById('onboardingModal')
-                    );
+            // ------------------------------------------------------------
+            // SHOW POPUP ONLY IF SOMETHING IS PENDING
+            // ------------------------------------------------------------
+            if (learningStylePending || kpiAgentPending) {
 
-                onboardingModal.show();
+                const modalElement =
+                    document.getElementById('onboardingModal');
+
+                if (modalElement) {
+
+                    const modalTitle =
+                        document.getElementById('onboardingModalTitle');
+
+                    const modalHeading =
+                        document.getElementById('onboardingModalHeading');
+
+                    const modalDescription =
+                        document.getElementById('onboardingModalDescription');
+
+                    const modalInfo =
+                        document.getElementById('onboardingModalInfo');
+
+                    const modalAction =
+                        document.getElementById('onboardingModalAction');
+
+
+                    // ====================================================
+                    // CASE 1: LEARNING STYLE IS PENDING
+                    // ====================================================
+                    if (learningStylePending) {
+
+                        modalTitle.innerText =
+                            "👋 Welcome to your Trainee Portal!";
+
+                        modalHeading.innerText =
+                            "Setup Your Learning Profile";
+
+                        modalDescription.innerHTML =
+                            `Before you begin your courses, let's determine your
+                            <strong>Learning Tag</strong>. This quick assessment helps
+                            us personalize your training based on how you learn best
+                            (Visual, Auditory, or Kinesthetic).`;
+
+                        modalInfo.innerHTML =
+                            `⏳ <strong>Estimated time:</strong> 3-5 minutes only.`;
+
+                        modalAction.style.display = "inline-block";
+
+                        modalAction.innerText =
+                            "Start Assessment Now";
+
+                        modalAction.onclick =
+                            startLearningAssessment;
+                    }
+
+
+                    // ====================================================
+                    // CASE 2: KPI AGENT IS PENDING
+                    // ====================================================
+                    else if (kpiAgentPending) {
+
+                        modalTitle.innerText =
+                            "🤖 Training Requirement";
+
+                        modalHeading.innerText =
+                            "AI KPI Agent Setup";
+
+                        modalDescription.innerHTML =
+                            `Your Learning Style assessment is already complete.
+                            Your next training requirement is the
+                            <strong>AI KPI Agent</strong>.`;
+
+                        modalInfo.innerHTML =
+                            `⏳ <strong>Status:</strong> Waiting for Admin assignment.`;
+
+                        // Walang action muna habang Pending pa ang KPI Agent
+                        modalAction.style.display = "none";
+                    }
+
+
+                    // ====================================================
+                    // SHOW MODAL
+                    // ====================================================
+                    const onboardingModal =
+                        new bootstrap.Modal(modalElement);
+
+                    onboardingModal.show();
                 }
+            }
         }
     } catch (error) {
         console.error("Hindi maka-connect sa server:", error);
@@ -134,5 +267,42 @@ function loadDashboardData() {
                 </ul>
             </div>
         `;
+    }
+}
+
+async function loadTraineeKpiAgent(traineeId) {
+    try {
+        const response = await fetch(
+            `https://hr-admin-training-refactor.onrender.com/api/trainee/${traineeId}/kpi-agent`
+        );
+
+        if (response.status === 404) {
+            return {
+                assigned: false,
+                status: 'Pending',
+                gem_link: null
+            };
+        }
+
+        if (!response.ok) {
+            throw new Error(`KPI Agent request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        return {
+            assigned: data.status === 'Assigned' && !!data.gem_link,
+            status: data.status,
+            gem_link: data.gem_link || null
+        };
+
+    } catch (error) {
+        console.error('Error loading KPI Agent:', error);
+
+        return {
+            assigned: false,
+            status: 'Unavailable',
+            gem_link: null
+        };
     }
 }

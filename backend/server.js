@@ -35,14 +35,24 @@ db.connect(err => {
 app.post('/api/users', async (req, res) => {
   const { name, username, password, role, supervisor_id } = req.body;
 
+  // Basic validation
   if (!name || !username || !password || !role) {
-    return res.status(400).json({ error: 'Name, username, password and role are required.' });
+    return res.status(400).json({
+      error: 'Name, username, password and role are required.'
+    });
   }
 
   try {
-    // GET ROLE ID FROM ROLES TABLE
-    const roleSql = `SELECT role_id FROM roles WHERE role_name = ? LIMIT 1`;
-    
+    // ------------------------------------------------
+    // 1. FIND ROLE ID
+    // ------------------------------------------------
+    const roleSql = `
+      SELECT role_id
+      FROM roles
+      WHERE role_name = ?
+      LIMIT 1
+    `;
+
     db.query(roleSql, [role], async (roleErr, roleResults) => {
       if (roleErr) {
         console.error("Role lookup error:", roleErr);
@@ -50,54 +60,91 @@ app.post('/api/users', async (req, res) => {
       }
 
       if (roleResults.length === 0) {
-        return res.status(400).json({ error: `Role '${role}' not found.` });
+        return res.status(400).json({ error: `Role '${role}' does not exist.` });
       }
 
       const roleId = roleResults[0].role_id;
+
+      // ------------------------------------------------
+      // 2. HASH PASSWORD
+      // ------------------------------------------------
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // CREATE USER
-      const insertUserSql = `
-        INSERT INTO users (name, password, role, username, role_id, supervisor_id)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
-      const queryParams = [name, hashedPassword, role, username, roleId, supervisor_id || null];
+      // ------------------------------------------------
+      // 3. GENERATE EMAIL
+      // ------------------------------------------------
+      const email = `${username}@manlyplastics.com`;
 
-      db.query(insertUserSql, queryParams, (err, result) => {
+      // ------------------------------------------------
+      // 4. INSERT USER
+      // ------------------------------------------------
+      const insertSql = `
+        INSERT INTO users (
+          name, email, password, username, role_id, supervisor_id
+        ) VALUES (?, ?, ?, ?, ?, ?)
+      `;
+
+      const params = [
+        name,
+        email,
+        hashedPassword,
+        username,
+        roleId,
+        supervisor_id || null
+      ];
+
+      db.query(insertSql, params, (err, result) => {
         if (err) {
           console.error("Create user error:", err);
+
           if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ error: 'Username already exists.' });
+            return res.status(400).json({
+              error: 'Username or email already exists.'
+            });
           }
+
           return res.status(500).json({ error: err.message });
         }
 
         const newUserId = result.insertId;
+console.log(`User created successfully: ${name} (ID: ${newUserId})`);
 
-        // CREATE KPI AGENT FOR TRAINEE
-        if (role === 'Trainee') {
-          const insertKpiSql = `INSERT INTO kpi_agents (trainee_id) VALUES (?)`;
-          db.query(insertKpiSql, [newUserId], (kpiErr) => {
-            if (kpiErr) {
-              console.error("Failed to generate KPI Agent:", kpiErr);
-              return res.status(201).json({
-                message: 'User created, but KPI Agent provisioning failed.',
-                userId: newUserId
-              });
-            }
-            return res.status(201).json({
-              message: 'Trainee account created and KPI Agent successfully provisioned!',
-              userId: newUserId
-            });
-          });
-        } else {
-          return res.status(201).json({
-            message: 'User account created successfully!',
-            userId: newUserId
-          });
-        }
+// ------------------------------------------------
+// 5. CREATE KPI AGENT RECORD FOR TRAINEE
+// ------------------------------------------------
+if (role === 'Trainee') {
+  const kpiAgentSql = `
+    INSERT INTO kpi_agents (
+      trainee_id,
+      status
+    ) VALUES (?, 'Pending')
+  `;
+
+  db.query(kpiAgentSql, [newUserId], (kpiErr) => {
+    if (kpiErr) {
+      console.error("KPI Agent creation error:", kpiErr);
+      return res.status(500).json({
+        error: kpiErr.message
+      });
+    }
+
+    console.log(`KPI Agent created for trainee ID: ${newUserId}`);
+
+    res.status(201).json({
+      message: 'User account created successfully!',
+      userId: newUserId
+    });
+  });
+
+} else {
+  res.status(201).json({
+    message: 'User account created successfully!',
+    userId: newUserId
+  });
+}
       });
     });
+
   } catch (error) {
     console.error("Create user exception:", error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -108,96 +155,208 @@ app.post('/api/users', async (req, res) => {
 // API: LOGIN
 // ============================================================
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required.' });
-  }
+    const { username, password } = req.body;
 
-  console.log("Username received:", username);
-
-  const sql = `
-    SELECT u.id, u.name, u.username, u.password, u.role_id, r.role_name, u.supervisor_id
-    FROM users u
-    INNER JOIN roles r ON u.role_id = r.role_id
-    WHERE u.username = ? LIMIT 1
-  `;
-
-  db.query(sql, [username], async (err, results) => {
-    if (err) {
-      console.error("Login database error:", err);
-      return res.status(500).json({ error: err.message });
+    if (!username || !password) {
+        return res.status(400).json({
+            error: 'Username and password are required.'
+        });
     }
 
-    if (results.length === 0) {
-      return res.status(401).json({ error: "Invalid username or password." });
-    }
+    console.log("====================================");
+    console.log("LOGIN ATTEMPT");
+    console.log("Username received:", username);
+    console.log("Password received:", password ? "[RECEIVED]" : "[EMPTY]");
 
-    const user = results[0];
 
-    try {
-      const isMatch = await bcrypt.compare(password, user.password);
+    const sql = `
+        SELECT 
+            u.id,
+            u.name,
+            u.username,
+            u.password,
+            u.role_id,
+            r.role_name,
+            u.supervisor_id
+        FROM users u
+        INNER JOIN roles r
+            ON u.role_id = r.role_id
+        WHERE u.username = ?
+        LIMIT 1
+    `;
 
-      if (!isMatch) {
-        return res.status(401).json({ error: "Invalid username or password." });
-      }
 
-      res.json({
-        message: "Login successful",
-        user: {
-          id: user.id,
-          username: user.username,
-          name: user.name,
-          role: user.role_name,
-          supervisor_id: user.supervisor_id
+    db.query(sql, [username], async (err, results) => {
+
+        if (err) {
+
+            console.error("Login database error:", err);
+
+            return res.status(500).json({
+                error: err.message
+            });
+
         }
-      });
-    } catch (error) {
-      console.error("Password verification error:", error);
-      return res.status(500).json({ error: "Login verification failed." });
-    }
-  });
+
+
+        console.log("User records found:", results.length);
+
+
+        if (results.length === 0) {
+
+            console.log("LOGIN FAILED: Username not found.");
+
+            return res.status(401).json({
+                error: "Invalid username or password."
+            });
+
+        }
+
+
+        const user = results[0];
+
+        console.log("User ID:", user.id);
+        console.log("Username from DB:", user.username);
+        console.log("Role ID:", user.role_id);
+        console.log("Role:", user.role_name);
+        console.log("Password hash exists:", !!user.password);
+
+
+        try {
+
+            const isMatch = await bcrypt.compare(
+                password,
+                user.password
+            );
+
+
+            console.log("Password match:", isMatch);
+
+
+            if (!isMatch) {
+
+                console.log("LOGIN FAILED: Password mismatch.");
+
+                return res.status(401).json({
+                    error: "Invalid username or password."
+                });
+
+            }
+
+
+            console.log("LOGIN SUCCESS");
+
+
+            res.json({
+
+                message: "Login successful",
+
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    name: user.name,
+                    role: user.role_name,
+                    supervisor_id: user.supervisor_id
+                }
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Password verification error:",
+                error
+            );
+
+            return res.status(500).json({
+                error: "Login verification failed."
+            });
+
+        }
+
+    });
+
 });
 
+/// ============================================================
+// API: GET TRAINEE KPI AGENT
 // ============================================================
-// API: GET ALL USERS
-// ============================================================
-app.get('/api/users', (req, res) => {
-  const sql = `
-    SELECT u.id, u.name, u.username, u.role_id, r.role_name AS role, u.supervisor_id, u.created_at
-    FROM users u
-    LEFT JOIN roles r ON u.role_id = r.role_id
-    ORDER BY u.id DESC
-  `;
+app.get('/api/trainee/:id/kpi-agent', (req, res) => {
+    const traineeId = req.params.id;
 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error loading users:", err);
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(results);
-  });
+    const sql = `
+        SELECT
+            kpi_agent_id,
+            trainee_id,
+            gem_link,
+            status,
+            created_at,
+            updated_at
+        FROM kpi_agents
+        WHERE trainee_id = ?
+        LIMIT 1
+    `;
+
+    db.query(sql, [traineeId], (err, results) => {
+        if (err) {
+            console.error("Error loading KPI Agent:", err);
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                error: "KPI Agent not assigned."
+            });
+        }
+
+        res.json(results[0]);
+    });
 });
 
-// ============================================================
-// API: GET SUPERVISORS
-// ============================================================
-app.get('/api/users/supervisors', (req, res) => {
-  const sql = `
-    SELECT u.id, u.name, u.username, u.role_id, r.role_name
-    FROM users u
-    INNER JOIN roles r ON u.role_id = r.role_id
-    WHERE r.role_name = 'Supervisor'
-    ORDER BY u.name ASC
-  `;
 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error loading supervisors:", err);
-      return res.status(500).json({ error: err.message });
+// ============================================================
+// API: UPDATE TRAINEE KPI AGENT
+// ============================================================
+app.put('/api/trainee/:id/kpi-agent', (req, res) => {
+    const traineeId = req.params.id;
+    const { gem_link } = req.body;
+
+    if (!gem_link) {
+        return res.status(400).json({
+            error: "KPI Agent Gem link is required."
+        });
     }
-    res.json(results);
-  });
+
+    const sql = `
+        UPDATE kpi_agents
+        SET
+            gem_link = ?,
+            status = 'Assigned'
+        WHERE trainee_id = ?
+    `;
+
+    db.query(sql, [gem_link, traineeId], (err, result) => {
+        if (err) {
+            console.error("Error updating KPI Agent:", err);
+            return res.status(500).json({
+                error: err.message
+            });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                error: "KPI Agent record not found."
+            });
+        }
+
+        res.json({
+            message: "KPI Agent assigned successfully."
+        });
+    });
 });
 
 // ============================================================
@@ -207,7 +366,7 @@ app.get('/api/trainee/:id', (req, res) => {
   const traineeId = req.params.id;
 
   const sql = `
-    SELECT u.id, u.name, u.username, u.role_id, r.role_name AS role, u.supervisor_id, u.created_at
+    SELECT u.*, r.role_name AS role
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.role_id
     WHERE u.id = ? AND r.role_name = 'Trainee'
@@ -230,7 +389,7 @@ app.get('/api/trainee/:id', (req, res) => {
 // ============================================================
 app.put('/api/users/:id', async (req, res) => {
   const userId = req.params.id;
-  const { name, username, password, role, supervisor_id } = req.body;
+  const { name, username, password, role, supervisor_id, google_form_url } = req.body;
 
   if (!name || !username || !role) {
     return res.status(400).json({ error: 'Name, username and role are required.' });
@@ -248,24 +407,26 @@ app.put('/api/users/:id', async (req, res) => {
       }
 
       const roleId = roleResults[0].role_id;
+      
       let sql;
       let queryParams;
 
       if (password && password.trim() !== "") {
         const hashedPassword = await bcrypt.hash(password, 10);
+        // FIX #2: Idinagdag ang google_form_url = ? sa SET clause
         sql = `
           UPDATE users 
-          SET name = ?, username = ?, password = ?, role = ?, role_id = ?, supervisor_id = ?
+          SET name = ?, username = ?, password = ?, role = ?, role_id = ?, supervisor_id = ?, google_form_url = ?
           WHERE id = ?
         `;
-        queryParams = [name, username, hashedPassword, role, roleId, supervisor_id || null, userId];
+        queryParams = [name, username, hashedPassword, role, roleId, supervisor_id || null, google_form_url || null, userId];
       } else {
         sql = `
           UPDATE users 
-          SET name = ?, username = ?, role = ?, role_id = ?, supervisor_id = ?
+          SET name = ?, username = ?, role = ?, role_id = ?, supervisor_id = ?, google_form_url = ?
           WHERE id = ?
         `;
-        queryParams = [name, username, role, roleId, supervisor_id || null, userId];
+        queryParams = [name, username, role, roleId, supervisor_id || null, google_form_url || null, userId];
       }
 
       db.query(sql, queryParams, (err, result) => {
@@ -314,6 +475,60 @@ app.get("/", (req, res) => {
     status: "success",
     message: "Enterprise LMS Backend API",
     version: "1.0.0"
+  });
+});
+
+// ============================================================
+// COURSES API
+// ============================================================
+
+// GET ALL COURSES
+app.get('/api/courses', (req, res) => {
+  const sql = `
+    SELECT course_id, title, description, status, created_by, created_at
+    FROM courses
+    ORDER BY course_id DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error loading courses:", err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.json(results);
+  });
+});
+
+// CREATE COURSE
+app.post('/api/courses', (req, res) => {
+  const { title, description, created_by } = req.body;
+
+  if (!title || !title.trim()) {
+    return res.status(400).json({ error: "Course title is required." });
+  }
+
+  const sql = `
+    INSERT INTO courses (title, description, status, created_by)
+    VALUES (?, ?, 'Draft', ?)
+  `;
+
+  const params = [
+    title.trim(),
+    description || null,
+    created_by || null
+  ];
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      console.error("Error creating course:", err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.status(201).json({
+      message: "Course created successfully.",
+      courseId: result.insertId
+    });
   });
 });
 

@@ -1,9 +1,7 @@
 let isEditing = false;
 let editId = null;
 
-// ==========================================
-// 1. ADD / CREATE NEW USER (WITH AI REQUIREMENT & LEARNING TAG)
-// ==========================================
+
 // ==========================================
 // 1. ADD / CREATE NEW USER (WITH AI REQUIREMENT)
 // ==========================================
@@ -53,7 +51,7 @@ async function handleUserCrudSubmissionPipeline(event) {
     const learningTagResult = selectedStyles.length > 0 ? selectedStyles.join(', ') : 'Not Assessed';
 
     let googleFormLink = '';
-    const chkLearningTag = document.getElementById('chkTag'); // Make sure ID matches your HTML
+    const chkLearningTag = document.getElementById('chkLearningTag');
     if (chkLearningTag && chkLearningTag.checked) {
         const linkInput = document.getElementById('inGoogleFormLink');
         googleFormLink = linkInput ? linkInput.value.trim() : '';
@@ -62,19 +60,16 @@ async function handleUserCrudSubmissionPipeline(event) {
     const learningStyleRequired = (chkLearningTag && chkLearningTag.checked) ? 1 : 0;
 
     const userData = {
-        first_name: firstName,
-        middle_name: middleName || null,
-        last_name: lastName,
+        name: fullName,
         username: username,
         password: password,
         role: role,
         supervisor_id: supervisor_id,
-        product_assignment: 'LMS System',
-        industry_assignment: department,
-        style: learningTagResult,
-        assessment_link: googleFormLink,
-        learning_style_required: learningStyleRequired
+        google_form_url: document.getElementById('inGoogleFormLink') ? document.getElementById('inGoogleFormLink').value : null
     };
+
+console.log("========== NEW USERS.JS LOADED ==========");
+console.log("USER DATA BEING SENT:", userData);
 
     const url = isEditing ? `https://hr-admin-training-refactor.onrender.com/api/users/${editId}` : 'https://hr-admin-training-refactor.onrender.com/api/users';
     const method = isEditing ? 'PUT' : 'POST';
@@ -95,12 +90,54 @@ async function handleUserCrudSubmissionPipeline(event) {
         const result = await response.json();
 
         if (response.ok) {
-            alert(`Success: ${role} account saved for ${fullName}!`);
-            resetUserFormStateDefault();
-            fetchAndDisplayUsers();
-        } else {
-            alert(`Error: ${result.error}`);
+
+    // ==========================================
+    // ==========================================
+// ASSIGN / UPDATE KPI AGENT GEM LINK
+// ==========================================
+if (role === 'Trainee' && geminiLink !== '') {
+
+    const editTargetElement = document.getElementById('editUserTargetIdx');
+    const safeEditId = editTargetElement ? editTargetElement.value : editId;
+    const traineeId = isEditing ? safeEditId : result.userId;
+
+    const kpiResponse = await fetch(
+        `https://hr-admin-training-refactor.onrender.com/api/trainee/${traineeId}/kpi-agent`,
+        {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                gem_link: geminiLink
+            })
         }
+    );
+
+    const kpiResult = await kpiResponse.json();
+
+    if (!kpiResponse.ok) {
+        console.error("KPI Agent assignment failed:", kpiResult);
+
+        alert(
+            `Trainee account was saved, but the KPI Agent could not be assigned.\n\n${kpiResult.error || 'Unknown error'}`
+        );
+
+        resetUserFormStateDefault();
+        fetchAndDisplayUsers();
+        return;
+    }
+
+    console.log("KPI Agent assigned/updated successfully:", kpiResult);
+};
+
+    resetUserFormStateDefault();
+    fetchAndDisplayUsers();
+
+} else {
+    alert(`Error: ${result.error}`);
+}
+
     } catch (error) {
         console.error('Error creating user:', error);
         alert('Server is offline or starting up. Please try again in a few seconds.');
@@ -118,6 +155,8 @@ async function handleUserCrudSubmissionPipeline(event) {
 // ==========================================
 async function fetchAndDisplayUsers() {
     try {
+        // TANDAAN: Naka-point ito sa Render (live server). 
+        // Kung nagte-test ka ng local backend, palitan ito ng 'https://hr-admin-training-refactor.onrender.com/api/users'
         const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/users');
 
         if (!response.ok) {
@@ -126,18 +165,15 @@ async function fetchAndDisplayUsers() {
 
         const users = await response.json();
 
-
         // ============================
         // NEW: BRIDGE TO ADMIN SYSTEM
         // ============================
-
         window.globalUserMemoryArray = users;
         console.log(window.globalUserMemoryArray);
 
         if (typeof recalculateLmsStateTablesCanvas === "function") {
             recalculateLmsStateTablesCanvas();
         }
-
         // ============================
 
         const tbody = document.getElementById('tbodyUserRegistryRows');
@@ -146,25 +182,21 @@ async function fetchAndDisplayUsers() {
         tbody.innerHTML = '';
 
         users.forEach(user => {
-        console.log("Current User:", user);
-        console.log("Current ID:", user.id);
+            console.log("Current User:", user);
+            console.log("Current ID:", user.id);
+            
             const tr = document.createElement('tr');
-
             const createdDate = new Date(user.created_at).toLocaleDateString();
-
-            const supervisorText =
-                user.supervisor_id
-                    ? `ID: ${user.supervisor_id}`
-                    : 'None';
+            const supervisorText = user.supervisor_id ? `ID: ${user.supervisor_id}` : 'None';
 
             tr.innerHTML = `
                 <td><strong>${user.name}</strong></td>
 
-                <td>${user.email}</td>
+                <!-- Pinalitan ang user.email ng user.username -->
+                <td>${user.username || 'No Username'}</td>
 
                 <td>
                     <span class="password-mask">••••••••</span>
-
                     <span class="password-hash hidden">
                         ${user.password || ''}
                     </span>
@@ -183,29 +215,26 @@ async function fetchAndDisplayUsers() {
                 </td>
 
                 <td>${createdDate}</td>
-
                 
                 <td>
-                    <button class="btn-action-sm btn-edit" onclick="console.log('USERS.JS'); triggerUserEditModeSetup(${user.id})">
+                    <!-- Inayos ang putol na Edit button -->
+                    <button class="btn-action-sm btn-edit" onclick="console.log('USERS.JS'); triggerUserEditModeSetup(${user.id})">Edit</button>
 
                     <button class="btn-action-sm btn-delete">Delete</button>
                 </td>
             `;
 
             tbody.appendChild(tr);
-
         });
 
-        const countElement =
-            document.getElementById('userRegistryShowingCount');
+        const countElement = document.getElementById('userRegistryShowingCount');
 
-        if (countElement)
+        if (countElement) {
             countElement.innerText = users.length;
+        }
 
     } catch (error) {
-
-        console.error(error);
-
+        console.error("Fetch Error:", error);
     }
 }
 // ==========================================
@@ -337,13 +366,14 @@ window.triggerUserEditModeSetup = function(userId) {
     const nameParts = user.name.split(' ');
     document.getElementById('inUserLast').value = nameParts.pop() || '';
     document.getElementById('inUserFirst').value = nameParts.join(' ') || '';
-    document.getElementById('inUserGmail').value = user.email;
 
-    // ✨ ITO ANG NA-FIX NATIN: 'inUserUsername' ang tamang ID mula sa HTML mo
-    const usernameInput = document.getElementById('inUserUsername'); 
+
+    // Load existing username during edit
+    const usernameInput = document.getElementById('inUsername');
+
     if (usernameInput) {
-        usernameInput.value = ''; // I-blanko na lang natin dahil email naman ang gamit sa login
-        usernameInput.removeAttribute('required'); // Papatayin ang validation
+        usernameInput.value = user.username || '';
+        usernameInput.removeAttribute('required');
     }
     
     // NOTE: Blank ang password dahil hindi kailangan palitan kung edit lang.
@@ -357,6 +387,23 @@ window.triggerUserEditModeSetup = function(userId) {
     const geminiInput = document.getElementById('inGeminiLink');
     if (geminiInput) {
         geminiInput.removeAttribute('required');
+        geminiInput.value = ''; // i-clear muna bago mag-load
+        
+        // I-fetch ang existing KPI Agent Gemini Link kung siya ay Trainee
+        if (user.role === 'Trainee') {
+            // GAGAMITIN NATIN ANG userId PARAMETER PARA HINDI MAGING BLANKO
+            fetch(`https://hr-admin-training-refactor.onrender.com/api/trainee/${userId}/kpi-agent`)
+                .then(res => {
+                    if (res.ok) return res.json();
+                    return null; 
+                })
+                .then(data => {
+                    if (data && data.gem_link) {
+                        geminiInput.value = data.gem_link;
+                    }
+                })
+                .catch(err => console.error("Error fetching KPI Agent:", err));
+        }
     }
 
     document.getElementById('inUserRole').value = user.role;
