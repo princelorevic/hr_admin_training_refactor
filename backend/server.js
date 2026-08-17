@@ -280,6 +280,40 @@ app.post('/api/login', async (req, res) => {
 
 });
 
+// ============================================================
+// API: GET ALL USERS
+// ============================================================
+app.get('/api/users', (req, res) => {
+
+  const sql = `
+    SELECT
+      u.id,
+      u.name,
+      u.username,
+      u.role_id,
+      r.role_name AS role,
+      u.supervisor_id,
+      u.created_at
+    FROM users u
+    INNER JOIN roles r
+      ON u.role_id = r.role_id
+    ORDER BY u.id DESC
+  `;
+
+  db.query(sql, (err, results) => {
+
+    if (err) {
+      console.error("Error fetching users:", err);
+
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+
+    res.json(results);
+  });
+});
+
 /// ============================================================
 // API: GET TRAINEE KPI AGENT
 // ============================================================

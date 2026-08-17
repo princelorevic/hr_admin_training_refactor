@@ -155,8 +155,6 @@ if (role === 'Trainee' && geminiLink !== '') {
 // ==========================================
 async function fetchAndDisplayUsers() {
     try {
-        // TANDAAN: Naka-point ito sa Render (live server). 
-        // Kung nagte-test ka ng local backend, palitan ito ng 'https://hr-admin-training-refactor.onrender.com/api/users'
         const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/users');
 
         if (!response.ok) {
@@ -169,7 +167,7 @@ async function fetchAndDisplayUsers() {
         // NEW: BRIDGE TO ADMIN SYSTEM
         // ============================
         window.globalUserMemoryArray = users;
-        console.log(window.globalUserMemoryArray);
+        console.log("Global Users Loaded:", window.globalUserMemoryArray);
 
         if (typeof recalculateLmsStateTablesCanvas === "function") {
             recalculateLmsStateTablesCanvas();
@@ -182,44 +180,25 @@ async function fetchAndDisplayUsers() {
         tbody.innerHTML = '';
 
         users.forEach(user => {
-            console.log("Current User:", user);
-            console.log("Current ID:", user.id);
-            
             const tr = document.createElement('tr');
             const createdDate = new Date(user.created_at).toLocaleDateString();
             const supervisorText = user.supervisor_id ? `ID: ${user.supervisor_id}` : 'None';
 
             tr.innerHTML = `
                 <td><strong>${user.name}</strong></td>
-
-                <!-- Pinalitan ang user.email ng user.username -->
-                <td>${user.username || 'No Username'}</td>
-
+                <td>${user.email}</td>
                 <td>
                     <span class="password-mask">••••••••</span>
-                    <span class="password-hash hidden">
-                        ${user.password || ''}
-                    </span>
+                    <span class="password-hash hidden">${user.password || ''}</span>
                 </td>
-
-                <td>
-                    <span class="badge-role">${user.role}</span>
-                </td>
-
+                <td><span class="badge-role">${user.role}</span></td>
                 <td>${user.industry_assignment || 'N/A'}</td>
-
                 <td>${supervisorText}</td>
-
-                <td>
-                    <span class="course-chip">Pending AI</span>
-                </td>
-
+                <td><span class="course-chip">Pending AI</span></td>
                 <td>${createdDate}</td>
-                
                 <td>
-                    <!-- Inayos ang putol na Edit button -->
-                    <button class="btn-action-sm btn-edit" onclick="console.log('USERS.JS'); triggerUserEditModeSetup(${user.id})">Edit</button>
-
+                    <!-- ✨ NA-FIX NA YUNG NAWAWALANG "Edit" AT "</button>" DITO -->
+                    <button class="btn-action-sm btn-edit" onclick="triggerUserEditModeSetup(${user.id})">Edit</button>
                     <button class="btn-action-sm btn-delete">Delete</button>
                 </td>
             `;
@@ -227,16 +206,23 @@ async function fetchAndDisplayUsers() {
             tbody.appendChild(tr);
         });
 
+        // ✨ 1. UPDATE SA TABLE REGISTRY COUNT ("Showing X users")
         const countElement = document.getElementById('userRegistryShowingCount');
-
         if (countElement) {
             countElement.innerText = users.length;
         }
 
+        // ✨ 2. UPDATE SA DASHBOARD WIDGET ("Total Headcount Index")
+        const dashCountElement = document.getElementById('lbl-dash-count');
+        if (dashCountElement) {
+            dashCountElement.innerText = users.length;
+        }
+
     } catch (error) {
-        console.error("Fetch Error:", error);
+        console.error("Error fetching users:", error);
     }
 }
+
 // ==========================================
 // 3. UI TOGGLES, DROPDOWNS, AND OVERRIDES
 // ==========================================
@@ -487,9 +473,9 @@ function closeLogoutModal() {
 }
 
 function executeLogout() {
-    // Dito mo ilalagay ang logic mo kung may kailangang i-clear na sessionStorage/localStorage
-    // Pagkatapos ay ire-redirect pabalik sa login page
-    window.location.href = './website/login.html';
+    sessionStorage.clear();
+    localStorage.clear();
+    window.location.href = '/website/login.html';
 }
 
 function generateUsername() {

@@ -22,3 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// --- LOGOUT CONFIRMATION FUNCTION ---
+function executeLogout() {
+    sessionStorage.clear();
+    localStorage.clear();
+    window.location.href = 'login.html'; // TANGGALIN ANG MGA SLASH
+}
