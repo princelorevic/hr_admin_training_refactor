@@ -666,13 +666,12 @@
                         <tr>
                             <th>Name</th>
                             <th>Username</th>
-                            <th>Password</th>
                             <th>Role Type</th>
                             <th>Department</th>
                             <th>Supervisor</th>
                             <th>Learning Style Tag</th>
                             <th>Created</th>
-                            <th>CRUD Options</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyUserRegistryRows"></tbody>
@@ -762,7 +761,7 @@
               </div>
 
               <div class="table-toolbar">
-                <input type="text" id="txtUserSearch" placeholder="🔍 Search name, email or username..." onkeyup="recalculateLmsStateTablesCanvas()">
+                <input type="text" id="txtUserSearch" placeholder="🔍 Search name or username..." onkeyup="recalculateLmsStateTablesCanvas()">
 
                 <select id="filterRole" onchange="recalculateLmsStateTablesCanvas()">
                     <option value="All">All Roles</option>
@@ -1407,6 +1406,9 @@
   <!-- ===== DASHBOARD ===== -->
   <script src="assets/js/core/dashboard.js"></script>
   <script src="assets/js/core/navigation.js"></script>
+
+  <!--LOCAL / RENDER TEST-->
+  <script src="assets/js/config.js"></script>
 
   <!-- ===== MODULES ===== -->
   <script src="assets/js/modules/ai_provisioning.js"></script>

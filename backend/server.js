@@ -64,29 +64,17 @@ app.post('/api/users', async (req, res) => {
       }
 
       const roleId = roleResults[0].role_id;
-
-      // ------------------------------------------------
-      // 2. HASH PASSWORD
-      // ------------------------------------------------
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // ------------------------------------------------
-      // 3. GENERATE EMAIL
-      // ------------------------------------------------
-      const email = `${username}@manlyplastics.com`;
 
-      // ------------------------------------------------
-      // 4. INSERT USER
-      // ------------------------------------------------
       const insertSql = `
         INSERT INTO users (
-          name, email, password, username, role_id, supervisor_id
+          name,  password, username, role_id, supervisor_id
         ) VALUES (?, ?, ?, ?, ?, ?)
       `;
 
       const params = [
         name,
-        email,
         hashedPassword,
         username,
         roleId,
@@ -99,7 +87,7 @@ app.post('/api/users', async (req, res) => {
 
           if (err.code === 'ER_DUP_ENTRY') {
             return res.status(400).json({
-              error: 'Username or email already exists.'
+              error: 'Username already exists.'
             });
           }
 
@@ -290,8 +278,10 @@ app.get('/api/users', (req, res) => {
       u.id,
       u.name,
       u.username,
+      u.password,
       u.role_id,
       r.role_name AS role,
+      u.industry_assignment,
       u.supervisor_id,
       u.created_at
     FROM users u

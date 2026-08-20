@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 1. I-display sa UI
             if(document.getElementById('userGreeting')) document.getElementById('userGreeting').innerText = `Welcome, ${traineeData.name}!`;
             if(document.getElementById('profileName')) document.getElementById('profileName').value = traineeData.name;
-            if(document.getElementById('profileEmail')) document.getElementById('profileEmail').value = traineeData.email;
             if(document.getElementById('traineeName')) document.getElementById('traineeName').innerText = traineeData.name;
             
             if(document.getElementById('productAssignment')) document.getElementById('productAssignment').innerText = traineeData.product_assignment || 'None';

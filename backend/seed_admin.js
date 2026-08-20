@@ -27,8 +27,8 @@ db.connect((err) => {
     }
 
     const seedQuery = `
-      INSERT INTO users (name, email, password, role) 
-      VALUES ('System Admin', '${adminEmail}', '${hashedPassword}', 'Admin')
+      INSERT INTO users (name, password, role) 
+      VALUES ('System Admin', '${hashedPassword}', 'Admin')
       ON DUPLICATE KEY UPDATE password='${hashedPassword}';
     `;
 

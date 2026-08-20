@@ -2,11 +2,11 @@ async function handleLogin(event) {
     event.preventDefault(); // Pipigilan nito ang page na mag-refresh
 
     // Kukunin natin ang values mula sa input fields
-    const email = document.getElementById('employeeId').value.trim();
+    const username = document.getElementById('employeeId').value.trim();
     const password = document.getElementById('password').value;
 
     // 🛡️ SAFETY CHECK: Para hindi mag-400 Error, pipigilan na natin agad kung blangko
-    if (!email || !password) {
+    if (!username || !password) {
         alert("Please enter both your Employee ID and Password.");
         return;
     }
@@ -17,7 +17,7 @@ async function handleLogin(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username: email, password: password })
+            body: JSON.stringify({ username: username, password: password })
         });
 
         const data = await response.json();
@@ -42,7 +42,7 @@ async function handleLogin(event) {
                 alert('Role access not configured yet.');
             }
         } else {
-            // Kapag mali ang email o password
+            // Kapag mali ang username o password
             alert(`Login Failed: ${data.error}`);
         }
     } catch (error) {

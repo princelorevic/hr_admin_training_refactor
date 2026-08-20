@@ -478,11 +478,9 @@
         }
 
         fullName = fullName.toLowerCase();
-        const email = (user.gmail || "").toLowerCase();
         const username = (user.username || "").toLowerCase();
 
         const matchesSearch = fullName.includes(keyword) ||
-                              email.includes(keyword) ||
                               username.includes(keyword);
 
         const currentChosenRole = roleFilter.toUpperCase();
@@ -536,12 +534,6 @@ paginatedSlice.forEach((user) => {
         <tr>
 
             <td><strong>${fullName}</strong></td>
-
-            <td>
-                <span style="color:#0055aa;">
-                    ${user.email || ""}
-                </span>
-            </td>
 
             <td style="font-family:monospace;font-weight:700;">
                 ${password}

@@ -71,7 +71,7 @@ async function handleUserCrudSubmissionPipeline(event) {
 console.log("========== NEW USERS.JS LOADED ==========");
 console.log("USER DATA BEING SENT:", userData);
 
-    const url = isEditing ? `https://hr-admin-training-refactor.onrender.com/api/users/${editId}` : 'https://hr-admin-training-refactor.onrender.com/api/users';
+    const url = isEditing ? `${API_BASE_URL}/api/users/${editId}`: `${API_BASE_URL}/api/users`;
     const method = isEditing ? 'PUT' : 'POST';
 
     // 2. I-ACTIVATE ANG LOADING ANIMATION SA BUTTON
@@ -102,7 +102,7 @@ if (role === 'Trainee' && geminiLink !== '') {
     const traineeId = isEditing ? safeEditId : result.userId;
 
     const kpiResponse = await fetch(
-        `https://hr-admin-training-refactor.onrender.com/api/trainee/${traineeId}/kpi-agent`,
+        `${API_BASE_URL}/api/trainee/${traineeId}/kpi-agent`,
         {
             method: 'PUT',
             headers: {
@@ -155,7 +155,7 @@ if (role === 'Trainee' && geminiLink !== '') {
 // ==========================================
 async function fetchAndDisplayUsers() {
     try {
-        const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/users');
+        const response = await fetch(`${API_BASE_URL}/api/users`);
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -185,21 +185,23 @@ async function fetchAndDisplayUsers() {
             const supervisorText = user.supervisor_id ? `ID: ${user.supervisor_id}` : 'None';
 
             tr.innerHTML = `
-                <td><strong>${user.name}</strong></td>
-                <td>${user.email}</td>
-                <td>
-                    <span class="password-mask">••••••••</span>
-                    <span class="password-hash hidden">${user.password || ''}</span>
-                </td>
-                <td><span class="badge-role">${user.role}</span></td>
+                <td><strong>${user.name || 'N/A'}</strong></td>
+                <td>${user.username || 'N/A'}</td>
+                <td><span class="badge-role">${user.role || 'N/A'}</span></td>
                 <td>${user.industry_assignment || 'N/A'}</td>
                 <td>${supervisorText}</td>
                 <td><span class="course-chip">Pending AI</span></td>
                 <td>${createdDate}</td>
                 <td>
-                    <!-- ✨ NA-FIX NA YUNG NAWAWALANG "Edit" AT "</button>" DITO -->
-                    <button class="btn-action-sm btn-edit" onclick="triggerUserEditModeSetup(${user.id})">Edit</button>
-                    <button class="btn-action-sm btn-delete">Delete</button>
+                    <button class="btn-action-sm btn-edit"
+                        onclick="triggerUserEditModeSetup(${user.id})">
+                        Edit
+                    </button>
+
+                    <button class="btn-action-sm btn-delete"
+                        onclick="deleteUser(${user.id})">
+                        Delete
+                    </button>
                 </td>
             `;
 
@@ -264,7 +266,7 @@ async function loadSupervisorDropdown() {
         const dropdown = document.getElementById('inUserSupervisor');
         if(!dropdown) return;
 
-        const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/users');
+        const response = await fetch(`${API_BASE_URL}/api/users`);
         const users = await response.json();
         
         dropdown.innerHTML = '<option value="">Select Supervisor</option>';
@@ -378,7 +380,7 @@ window.triggerUserEditModeSetup = function(userId) {
         // I-fetch ang existing KPI Agent Gemini Link kung siya ay Trainee
         if (user.role === 'Trainee') {
             // GAGAMITIN NATIN ANG userId PARAMETER PARA HINDI MAGING BLANKO
-            fetch(`https://hr-admin-training-refactor.onrender.com/api/trainee/${userId}/kpi-agent`)
+            fetch(`${API_BASE_URL}/api/trainee/${userId}/kpi-agent`)
                 .then(res => {
                     if (res.ok) return res.json();
                     return null; 
@@ -458,6 +460,69 @@ function toggleLearningTagPanel() {
         panel.classList.add('hidden');
         document.getElementById('inGoogleFormLink').value = ''; // i-clear pag inuncheck
     }
+}
+
+async function deleteUser(userId) {
+
+    const user = window.globalUserMemoryArray.find(u => u.id == userId);
+
+    if (!user) {
+        showError(
+            "User Not Found",
+            "The selected user could not be found."
+        );
+        return;
+    }
+
+    showConfirm(
+        "Delete User",
+        `Are you sure you want to permanently delete "${user.name}"?`,
+        async function() {
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE_URL}/api/users/${userId}`,
+                    {
+                        method: 'DELETE'
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok) {
+
+                    console.error("Delete user failed:", result);
+
+                    showError(
+                        "Delete Failed",
+                        result.error || "Unable to delete the user."
+                    );
+
+                    return;
+                }
+
+                // Refresh table from database
+                await fetchAndDisplayUsers();
+
+                showSuccess(
+                    "User Deleted",
+                    `${user.name} has been permanently deleted.`
+                );
+
+            } catch (error) {
+
+                console.error("Error deleting user:", error);
+
+                showError(
+                    "Server Error",
+                    "The server is offline or unavailable. Please try again."
+                );
+
+            }
+
+        }
+    );
 }
 
 // --- LOGOUT CONFIRMATION FUNCTIONS ---

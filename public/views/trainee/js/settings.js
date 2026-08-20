@@ -43,7 +43,6 @@ function loadProfileData() {
     // Mock Data reflecting admin setup
     const userData = {
         name: "Juan Dela Cruz", // Nilagyan ko muna ng sample name para hindi mag-error ang split()
-        email: "juan@manlyplastics.com",
         supervisor: "Admin User",
         product: "Injection Molding",
         industry: "Manufacturing"
@@ -58,9 +57,6 @@ function loadProfileData() {
 
     const profileName = document.getElementById('profileName');
     if (profileName) profileName.value = userData.name;
-
-    const profileEmail = document.getElementById('profileEmail');
-    if (profileEmail) profileEmail.value = userData.email;
 
     const requirementsContainer = document.getElementById('adminRequirementsContainer');
     if (requirementsContainer) {
