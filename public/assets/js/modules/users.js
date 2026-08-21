@@ -64,8 +64,10 @@ async function handleUserCrudSubmissionPipeline(event) {
         username: username,
         password: password,
         role: role,
+        industry_assignment: department,
         supervisor_id: supervisor_id,
-        google_form_url: document.getElementById('inGoogleFormLink') ? document.getElementById('inGoogleFormLink').value : null
+        style: learningTagResult,        
+        google_form_url: googleFormLink  
     };
 
 console.log("========== NEW USERS.JS LOADED ==========");
@@ -155,7 +157,8 @@ if (role === 'Trainee' && geminiLink !== '') {
 // ==========================================
 async function fetchAndDisplayUsers() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/users`);
+        // 🔥 FIX 1: Nagdagdag tayo ng timestamp para hindi i-cache ng browser ang lumang data na walang 'style'
+        const response = await fetch(`${API_BASE_URL}/api/users?timestamp=${new Date().getTime()}`);
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -164,7 +167,7 @@ async function fetchAndDisplayUsers() {
         const users = await response.json();
 
         // ============================
-        // NEW: BRIDGE TO ADMIN SYSTEM
+        // BRIDGE TO ADMIN SYSTEM
         // ============================
         window.globalUserMemoryArray = users;
         console.log("Global Users Loaded:", window.globalUserMemoryArray);
@@ -173,40 +176,6 @@ async function fetchAndDisplayUsers() {
             recalculateLmsStateTablesCanvas();
         }
         // ============================
-
-        const tbody = document.getElementById('tbodyUserRegistryRows');
-        if (!tbody) return;
-
-        tbody.innerHTML = '';
-
-        users.forEach(user => {
-            const tr = document.createElement('tr');
-            const createdDate = new Date(user.created_at).toLocaleDateString();
-            const supervisorText = user.supervisor_id ? `ID: ${user.supervisor_id}` : 'None';
-
-            tr.innerHTML = `
-                <td><strong>${user.name || 'N/A'}</strong></td>
-                <td>${user.username || 'N/A'}</td>
-                <td><span class="badge-role">${user.role || 'N/A'}</span></td>
-                <td>${user.industry_assignment || 'N/A'}</td>
-                <td>${supervisorText}</td>
-                <td><span class="course-chip">Pending AI</span></td>
-                <td>${createdDate}</td>
-                <td>
-                    <button class="btn-action-sm btn-edit"
-                        onclick="triggerUserEditModeSetup(${user.id})">
-                        Edit
-                    </button>
-
-                    <button class="btn-action-sm btn-delete"
-                        onclick="deleteUser(${user.id})">
-                        Delete
-                    </button>
-                </td>
-            `;
-
-            tbody.appendChild(tr);
-        });
 
         // ✨ 1. UPDATE SA TABLE REGISTRY COUNT ("Showing X users")
         const countElement = document.getElementById('userRegistryShowingCount');
@@ -336,7 +305,25 @@ window.togglePasswords = function() {
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndDisplayUsers();
-    onRoleTypeChanged(); // Siguraduhing tama ang itsura ng form pagka-load
+    onRoleTypeChanged(); 
+
+    const notAssessedCb = document.querySelector('.chk-learning-style[value="Not Assessed"]');
+    const otherCbs = document.querySelectorAll('.chk-learning-style:not([value="Not Assessed"])');
+
+    if(notAssessedCb && otherCbs.length >0){
+        notAssessedCb.addEventListener('change', function(){
+            if(this.checked){
+                otherCbs.forEach(cb => cb.checked =false);
+            }
+        });
+        otherCbs.forEach(cb => {
+            cb.addEventListener('change', function(){
+                if(this.checked){
+                    notAssessedCb.checked = false;
+                }
+            })
+        })
+    }
 });
 
 // ==========================================
@@ -408,15 +395,29 @@ window.triggerUserEditModeSetup = function(userId) {
         }
     }, 100); 
 
-    // --- LEARNING TAG AT GOOGLE FORM LINK ---
+    // --- ASSESSMENT RESULT CHECKBOXES AT GOOGLE FORM LINK ---
+    const savedStyle = (user.style && user.style.trim() !== '') ? user.style : 'Not Assessed';
+    
+    // I-check ang tamang checkboxes base sa string mula sa database
+    const allCheckboxes = document.querySelectorAll('.chk-learning-style');
+    allCheckboxes.forEach(cb => {
+        // Kung ang value ng checkbox (ex. 'Visual') ay nasa loob ng savedStyle string
+        if (savedStyle.includes(cb.value)) {
+            cb.checked = true;
+        } else {
+            cb.checked = false;
+        }
+    });
+
+    // (Optional) Kung may hidden input ka para dito, i-update na rin
     if (document.getElementById('inLearningTagResult')) {
-        document.getElementById('inLearningTagResult').value = user.style && user.style !== '' ? user.style : 'Not Assessed';
+        document.getElementById('inLearningTagResult').value = savedStyle;
     }
 
     const chkLearningTag = document.getElementById('chkLearningTag');
     const linkPanel = document.getElementById('learningTagPanel');
     const inGoogleFormLink = document.getElementById('inGoogleFormLink');
-    const savedFormUrl = user.assessment_link;
+    const savedFormUrl = user.google_form_url;
 
     if (savedFormUrl && savedFormUrl.trim() !== '') { 
         if (chkLearningTag) chkLearningTag.checked = true;

@@ -58,7 +58,7 @@
     if (activeTargetDeleteType === 'USER') {
       // BAGONG DATABASE-DRIVEN DELETE LOGIC
       try {
-        const response = await fetch(`https://hr-admin-training-refactor.onrender.com/api/users/${activeTargetDeleteIndex}`, {
+        const response = await fetch(`${API_BASE_URL}/api/users/${activeTargetDeleteIndex}`, {
             method: 'DELETE'
         });
         
@@ -447,54 +447,45 @@
     }
 
     function recalculateLmsStateTablesCanvas() {
-    const keyword = document.getElementById("txtUserSearch")?.value.toLowerCase() || window.keyword || "";
-    const roleFilter = document.getElementById("filterRole")?.value || window.selectedRoleFilter || "";
-    const deptFilter = document.getElementById("filterDept")?.value || "";
-    const lblDashCount = document.getElementById("lbl-dash-count");
-
-    if (lblDashCount) {
-        lblDashCount.innerText = globalUserMemoryArray.length;  
-    }
+    // 1. KUNIN ANG EXACT VALUES MULA SA SEARCH BAR AT DROPDOWN
+    const searchInput = document.getElementById('searchNameInput');
+    const filterSelect = document.getElementById('filterRoleSelect');
+    
+    const keyword = searchInput ? searchInput.value.toLowerCase().trim() : (window.keyword || "");
+    const roleFilter = filterSelect ? filterSelect.value.toUpperCase() : (window.selectedRoleFilter || "");
 
     const userTbody = document.getElementById("tbodyUserRegistryRows");
     if (!userTbody) return;
 
     userTbody.innerHTML = "";
 
-    // 1. SORT BY LAST NAME
+    // 2. SORTING ENGINE (Alphabetical base sa Name)
     globalUserMemoryArray.sort((a, b) => {
-        const nameA = a.lastName || a.name || "";
-        const nameB = b.lastName || b.name || "";
+        const nameA = a.name || "";
+        const nameB = b.name || "";
         return nameA.localeCompare(nameB);
     });
 
-    // 2. FILTERING PIPELINE
+    // 3. FILTERING ENGINE (Hahanapin sa Name OR Username)
     const filteredUsers = globalUserMemoryArray.filter(user => {
-        let fullName = "";
-        if (user.lastName || user.firstName) {
-            fullName = `${user.lastName || ""}, ${user.firstName || ""} ${user.middleName || ""}`.trim();
-        } else {
-            fullName = user.name || "";
-        }
-
-        fullName = fullName.toLowerCase();
+        const fullName = (user.name || "").toLowerCase();
         const username = (user.username || "").toLowerCase();
 
-        const matchesSearch = fullName.includes(keyword) ||
-                              username.includes(keyword);
+        // Mag-match kung nag-type sa Name O Username
+        const matchesSearch = keyword === "" || fullName.includes(keyword) || username.includes(keyword);
 
-        const currentChosenRole = roleFilter.toUpperCase();
         const userRoleType = (user.role || "").toUpperCase();
-        const matchesRole = currentChosenRole === "" || currentChosenRole === "ALL" || userRoleType.includes(currentChosenRole);
+        // Mag-match base sa napiling Role sa dropdown
+        const matchesRole = roleFilter === "" || roleFilter === "ALL" || userRoleType.includes(roleFilter);
 
         return matchesSearch && matchesRole;
     });
 
-    // 3. PAGINATION CALCULATION ENGINE
+    // 4. PAGINATION ENGINE
     const totalFiltered = filteredUsers.length;
     const maxPages = Math.ceil(totalFiltered / usersPerPage) || 1;
     
-    // Proteksyon para hindi lumampas ang page counter kung nabawasan ang filtered results
+    // Proteksyon sa paglipat-lipat ng pages
     if (currentUserPage > maxPages) currentUserPage = maxPages;
     if (currentUserPage < 1) currentUserPage = 1;
 
@@ -502,89 +493,53 @@
     const endIndex = startIndex + usersPerPage;
     const paginatedSlice = filteredUsers.slice(startIndex, endIndex);
 
-    // Update Showing Label Count
+    // Update Label Counters sa UI
     const showingCountEl = document.getElementById("userRegistryShowingCount");
     if (showingCountEl) {
-        showingCountEl.innerText = `${startIndex + 1}-${Math.min(endIndex, totalFiltered)} of ${totalFiltered}`;
+        showingCountEl.innerText = totalFiltered > 0 
+            ? `${startIndex + 1}-${Math.min(endIndex, totalFiltered)} of ${totalFiltered}`
+            : "0";
     }
+    
+    const lblDashCount = document.getElementById("lbl-dash-count");
+    if (lblDashCount) lblDashCount.innerText = globalUserMemoryArray.length;
 
-    // 4. RENDER PAGINATED ROWS
-const showPasswords = document.getElementById("chkShowPasswords")?.checked;
+    // 5. RENDER ROWS TO TABLE (EXACTLY 8 COLUMNS PARA SA BAGONG HEADERS)
+    paginatedSlice.forEach((user) => {
+        const fullName = user.name || "Unknown User";
+        const username = user.username || "—";
+        
+        // Format Supervisor Assignment
+        let supervisor = "—";
+        if (user.role === "Trainee" || user.role === "TRAINEE") {
+            supervisor = user.supervisor_id ? `ID: ${user.supervisor_id}` : "Pending";
+        }
 
-paginatedSlice.forEach((user) => {
+        // Format Date string
+        const dateStr = user.created_at ? new Date(user.created_at).toLocaleDateString() : "—";
 
-    let fullName = "";
+        // Column Order: Name | Username | Role Type | Department | Supervisor | Learning Style Tag | Created | Actions
+        userTbody.innerHTML += `
+            <tr>
+                <td><strong>${fullName}</strong></td>
+                <td><span style="color:#0055aa; font-weight:600;">${username}</span></td>
+                <td><span class="badge-role">${user.role || "—"}</span></td>
+                <td>${user.industry_assignment || "—"}</td>
+                <td>${supervisor}</td>
+                <td><span class="badge-role" style="background:#fef3c7; color:#92400e;">${user.style || "Not Assessed"}</span></td>
+                <td>${dateStr}</td>
+                <td>
+                    <button class="btn-action-sm btn-edit" onclick="triggerUserEditModeSetup(${user.id})">✏️ Edit</button>
+                    <button class="btn-action-sm btn-delete" onclick="triggerSecurePurgeModalPipeline('USER', ${user.id})">🗑️ Delete</button>
+                </td>
+            </tr>
+        `;
+    });
 
-    if (user.lastName || user.firstName) {
-        fullName = `${user.lastName || ""}, ${user.firstName || ""} ${user.middleName || ""}`.trim();
-    } else {
-        fullName = user.name || "Unknown User";
+    // 6. RENDER PAGE BUTTONS
+    if (typeof renderUserPaginationControls === "function") {
+        renderUserPaginationControls(maxPages);
     }
-
-    const password = showPasswords
-        ? (user.password || "")
-        : "••••••••";
-
-    const supervisor =
-        user.role === "Trainee"
-            ? (user.supervisor_id || "Pending")
-            : "—";
-
-    userTbody.innerHTML += `
-        <tr>
-
-            <td><strong>${fullName}</strong></td>
-
-            <td style="font-family:monospace;font-weight:700;">
-                ${password}
-            </td>
-
-            <td>
-                <span class="badge-role">
-                    ${user.role || ""}
-                </span>
-            </td>
-
-            <td>
-                ${user.industry_assignment || ""}
-            </td>
-
-            <td>
-                ${supervisor}
-            </td>
-
-            <td>
-                ${user.style || "Not Assessed"}
-            </td>
-
-            <td>
-                ${user.created_at
-                    ? new Date(user.created_at).toLocaleDateString()
-                    : "—"}
-            </td>
-
-            <td>
-
-                <button
-                    class="btn-action-sm btn-edit"
-                    onclick="triggerUserEditModeSetup(${user.id})">
-                    ✏️ Edit
-                </button>
-
-                <button
-                    class="btn-action-sm btn-delete"
-                    onclick="triggerSecurePurgeModalPipeline('USER', ${user.id})">
-                    🗑️ Delete
-                </button>
-
-            </td>
-
-        </tr>
-    `;
-});
-
-    // 5. DYNAMIC BUTTONS & NUMBERS GENERATOR
-    renderUserPaginationControls(maxPages);
 }
 
 // ALAY NA FUNCTION PARA SA DYNAMIC NUMBERS AT PAGE NAVIGATION LIFECYCLE
@@ -1082,123 +1037,16 @@ function goToUserPage(pageNumber) {
       courseSubtitleMap[currentSelectedCourseTitle] = document.getElementById("lbl-builder-hero-subtitle").innerText.trim();
     }
 
-// THE ULTIMATE REGISTRY OVERRIDE (SEARCH, FILTER & PASSWORD TOGGLE)
-(function() {
-    window.addEventListener('load', function() {
-        const searchInput = document.getElementById('searchNameInput');
-        const filterSelect = document.getElementById('filterRoleSelect');
-        const showPwdCheckbox = document.getElementById('chkShowPasswords');
-        const userTbody = document.getElementById("tbodyUserRegistryRows");
-
-        if (!userTbody) return;
-
-        // Awtomatikong hahanapin kung anong pangalan ng render function ang mayroon sa admin.js mo
-        let coreRenderFunction = null;
-        const potentialNames = ['renderUsers', 'renderUserTable', 'displayUsers', 'loadUsers', 'updateUserTable', 'populateTable'];
-        for (let name of potentialNames) {
-            if (typeof window[name] === 'function') { coreRenderFunction = window[name]; break; }
-        }
-
-        function triggerSystemRefresh() {
-            if (coreRenderFunction) {
-                coreRenderFunction();
-            } else {
-                // Kung local function at hindi naka-attach sa window, gagamitin ang manual text toggle
-                applyManualDOMOverride();
-            }
-        }
-
-        // 1. IPATALAB ANG MGA INPUT EVENTS SA GLOBAL VARIABLES NG SYSTEM MO
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                window.keyword = this.value.toLowerCase().trim();
-                triggerSystemRefresh();
-                applyManualDOMOverride(); // Siguradong ma-apply kahit anong mangyari
-            });
-        }
-
-        if (filterSelect) {
-            filterSelect.addEventListener('change', function() {
-                window.selectedRoleFilter = this.value.toUpperCase();
-                triggerSystemRefresh();
-                applyManualDOMOverride();
-            });
-        }
-
-        if (showPwdCheckbox) {
-            showPwdCheckbox.addEventListener('change', function() {
-                applyManualDOMOverride();
-            });
-        }
-
-        // 2. ANG MATIBAY NA DOM OVERRIDER (Haharang sa text ng Password cell)
-        function applyManualDOMOverride() {
-            const isShowPasswordChecked = showPwdCheckbox ? showPwdCheckbox.checked : false;
-            const searchText = searchInput ? searchInput.value.toLowerCase().trim() : '';
-            const selectedRole = filterSelect ? filterSelect.value.toUpperCase() : '';
-            
-            const rows = userTbody.querySelectorAll('tr');
-            
-            rows.forEach(row => {
-                if (row.cells.length < 4) return;
-
-                // A. Force Search & Role Filter Visiblity Check
-                const rowTextLower = row.textContent.toLowerCase();
-                const roleTextUpper = row.cells[3] ? row.cells[3].textContent.toUpperCase() : '';
-
-                const matchesSearch = searchText === '' || rowTextLower.includes(searchText);
-                const matchesRole = selectedRole === '' || roleTextUpper.includes(selectedRole);
-
-                row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
-
-                // B. Force Password Replacement
-                const passwordCell = row.cells[2]; // Column Index 2
-                if (passwordCell) {
-                    // I-backup ang totoong password text kung hindi pa dots ang nakasulat
-                    if (!passwordCell.dataset.realPass && !passwordCell.textContent.includes('••')) {
-                        passwordCell.dataset.realPass = passwordCell.textContent.trim();
-                    }
-
-                    if (isShowPasswordChecked) {
-                        if (passwordCell.dataset.realPass) {
-                            passwordCell.textContent = passwordCell.dataset.realPass;
-                        }
-                    } else {
-                        if (!passwordCell.textContent.includes('••')) {
-                            passwordCell.dataset.realPass = passwordCell.textContent.trim();
-                        }
-                        passwordCell.textContent = '••••••••';
-                    }
-                }
-            });
-        }
-
-        // Gumawa ng mas malawak na observer na magpapagana sa Show Password kahit mag-refresh ang data
-        const globalTableObserver = new MutationObserver(function() {
-            globalTableObserver.disconnect();
-            applyManualDOMOverride();
-            globalTableObserver.observe(userTbody, { childList: true, subtree: true });
-        });
-
-        globalTableObserver.observe(userTbody, { childList: true, subtree: true });
-        
-        // Patakbuhin makalipas ang 300ms para makasiguro na tapos na ang initial load mula sa DB nyo
-        setTimeout(applyManualDOMOverride, 300);
-    });
-})();
-
 // RE-ENGINEERED DYNAMIC COUPLING (SEARCH, FILTER & PASSWORD TOGGLE)
 (function() {
     window.addEventListener('load', function() {
         const searchInput = document.getElementById('searchNameInput');
         const filterSelect = document.getElementById('filterRoleSelect');
-        const showPwdCheckbox = document.getElementById('chkShowPasswords');
 
-        // I-hijack ang real-time events at direktang i-trigger ang main table layout renderer mo
         if (searchInput) {
             searchInput.addEventListener('input', function() {
-                // Ipinapasa ang keyword sa window structure para mag-sync sa state calculation mo
                 window.keyword = this.value.toLowerCase().trim();
+                currentUserPage = 1; // Reset sa page 1 kapag nagse-search para hindi mawala ang results
                 if (typeof recalculateLmsStateTablesCanvas === 'function') {
                     recalculateLmsStateTablesCanvas();
                 }
@@ -1208,14 +1056,7 @@ function goToUserPage(pageNumber) {
         if (filterSelect) {
             filterSelect.addEventListener('change', function() {
                 window.selectedRoleFilter = this.value.toUpperCase();
-                if (typeof recalculateLmsStateTablesCanvas === 'function') {
-                    recalculateLmsStateTablesCanvas();
-                }
-            });
-        }
-
-        if (showPwdCheckbox) {
-            showPwdCheckbox.addEventListener('change', function() {
+                currentUserPage = 1; // Reset sa page 1 kapag nagpapalit ng role
                 if (typeof recalculateLmsStateTablesCanvas === 'function') {
                     recalculateLmsStateTablesCanvas();
                 }
@@ -1309,7 +1150,7 @@ window.onload = function(e) {
 // 1. Fetch data mula sa backend imbes na sa local variable
 async function fetchCourseEnrollments(courseTitle) {
     try {
-        const response = await fetch(`https://hr-admin-training-refactor.onrender.com/api/enrollments/${encodeURIComponent(courseTitle)}`);
+        const response = await fetch(`${API_BASE_URL}/api/enrollments/${encodeURIComponent(courseTitle)}`);
         if (!response.ok) throw new Error("Failed to fetch enrollments");
         
         const data = await response.json();
@@ -1395,7 +1236,7 @@ executeEnrollUserActionToActiveCourse = async function(name, role, dept) {
     };
 
     try {
-        const response = await fetch('https://hr-admin-training-refactor.onrender.com/api/enrollments', {
+        const response = await fetch(`${API_BASE_URL}/api/enrollments`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
