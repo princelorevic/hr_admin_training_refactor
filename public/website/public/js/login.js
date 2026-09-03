@@ -24,14 +24,19 @@ async function handleLogin(event) {
 
         // Kapag successful ang login
         if (response.ok) {
-            // I-save ang user details sa browser (LocalStorage)
-            localStorage.setItem('userId', data.user.id);
-            localStorage.setItem('userName', data.user.name);
-            localStorage.setItem('userRole', data.user.role);
+            localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("userName", data.user.name);
+        localStorage.setItem("userRole", data.user.role);
+        
+        // 🔍 ILAGAY ITO PARA MAKITA NATIN ANG BUONG USER OBJECT SA F12 CONSOLE
+        console.log("BUONG DATA NG USER MULA SA BACKEND:", data.user);
 
-            alert(`Welcome back, ${data.user.name}!`);
+        localStorage.setItem("userDept", data.user.department || data.user.industry_assignment || "No Department Assigned");
 
             // 🚀 FIXED REDIRECTS FOR RENDER LIVE SERVER
+            
+
+            
             if (data.user.role === 'Admin') {
                 window.location.href = '/public/index_admin.html';
             } else if (data.user.role === 'Trainee') {

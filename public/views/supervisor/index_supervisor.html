@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Dashboard | LMS</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/images/devprince.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <!-- Profile Image na kaparehas ng sa Trainee -->
+            <img src="../../assets/images/devprince.png" alt="Supervisor Profile" class="profile-img">
+            <h5>SUPERVISOR</h5>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="reports/reports.html"><i class="bi bi-people"></i> Employee Reports</a>
+            <a href="#"><i class="bi bi-book"></i> My Courses</a>
+            <a href="#"><i class="bi bi-gear"></i> Settings</a>
+        </nav>
+
+        <!-- Nakahiwalay na footer para sa Logout -->
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="showLogoutModal()">Log Out</button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div class="page-title">Supervisor Gateway</div>
+            <div style="font-size: 13px; font-weight: 600; color: #64748b;">System Date: <span id="sysDate">Loading...</span></div>
+        </header>
+
+        <main class="content-area">
+            
+            <div class="header-profile">
+                <h1 id="lblSupervisorName">Loading Name...</h1>
+                <p id="lblSupervisorType">Loading Type...</p>
+            </div>
+
+            <div class="section-title">Employee Handle Data Summary</div>
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <h2 id="metricActive">0</h2>
+                    <span>Active Personnel</span>
+                </div>
+                <div class="metric-box">
+                    <h2 id="metricOngoing">0</h2>
+                    <span>Ongoing Trainings</span>
+                </div>
+                <div class="metric-box">
+                    <h2 id="metricFinished">0</h2>
+                    <span>Finished Trainings</span>
+                </div>
+            </div>
+
+            <div class="section-title">My Enrolled Trainings</div>
+            <div class="enrolled-grid" id="enrolledContainer">
+                <span style="color:#64748b; font-style:italic; font-size: 14px;">Fetching active courses...</span>
+            </div>
+
+            <div class="section-title">Suggested Trainings For Your Role</div>
+            <div class="suggested-grid" id="suggestedContainer">
+                <!-- Dynamic Content Loaded via JS -->
+            </div>
+
+            <button class="btn-view-other">Browse Full Course Catalog</button>
+
+        </main>
+    </div>
+
+    <!-- LOGOUT MODAL OVERLAY -->
+    <div id="logoutModalOverlay" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2>Confirm Logout</h2>
+            <p>Are you sure you want to log out of the Supervisor Gateway?</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+                <button class="btn-confirm-logout" onclick="confirmLogout()">Yes, Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sysDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    </script>
+    
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

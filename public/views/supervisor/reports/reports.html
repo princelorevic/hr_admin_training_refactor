@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Reports | Supervisor</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .table-container { background: #fff; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #0f172a; color: #fff; padding: 15px 20px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8fafc; }
+        
+        .badge-style { background: #e0f2fe; color: #0284c7; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+        .badge-kpi { background: #fef3c7; color: #0369a1; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+        .badge-kpi.active { background: #d1fae5; color: #047857; }
+        .btn-view { background: #0055aa; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+        .btn-view:hover { background: #004488; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            SUPERVISOR
+        </div>
+        <nav class="sidebar-nav">
+            <!-- Pinalitan ko ang active link -->
+            <a href="../index_supervisor.html">📊 Dashboard</a>
+            <a href="reports.html" class="active">📑 Employee Reports</a>
+            <a href="#">📘 My Courses</a>
+            <a href="#">⚙️ Settings</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="openLogoutModal()">Log Out</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div class="page-title">Employee Reports</div>
+            <div style="font-size: 13px; font-weight: 600; color: #64748b;">System Date: <span id="sysDate">Loading...</span></div>
+        </header>
+
+        <main class="content-area">
+            <div class="section-title">My Team Overview</div>
+            <p style="color: #64748b; font-size: 14px; margin-top: -10px; margin-bottom: 20px;">
+                Monitor the progress, learning styles, and KPI Agent status of your assigned trainees.
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Trainee Name</th>
+                            <th>Department</th>
+                            <th>Learning Style</th>
+                            <th>KPI Agent</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <tr><td colspan="5" style="text-align:center; color:#64748b;">Loading team data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- LOGOUT MODAL OVERLAY -->
+    <div id="logoutModalOverlay" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2>Confirm Logout</h2>
+            <p>Are you sure you want to log out of the Supervisor Gateway?</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+                <button class="btn-confirm-logout" onclick="confirmLogout()">Yes, Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sysDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        
+        function openLogoutModal() { document.getElementById('logoutModalOverlay').classList.remove('hidden'); }
+        function closeLogoutModal() { document.getElementById('logoutModalOverlay').classList.add('hidden'); }
+        function confirmLogout() { sessionStorage.clear(); window.location.href = '../../../website/login.html'; }
+    </script>
+    
+    <!-- TATAWAGIN ANG BAGONG JS -->
+    <script src="../assets/js/reports.js"></script>
+</body>
+</html>

@@ -33,7 +33,8 @@ db.connect(err => {
 // API: CREATE USER
 // ============================================================
 app.post('/api/users', async (req, res) => {
-  const { name, username, password, role, supervisor_id, style, google_form_url } = req.body;
+  // 👉 IDINAGDAG ANG industry_assignment
+  const { name, username, password, role, supervisor_id, style, google_form_url, industry_assignment } = req.body;
 
   if (!name || !username || !password || !role) {
     return res.status(400).json({ error: 'Name, username, password and role are required.' });
@@ -49,14 +50,22 @@ app.post('/api/users', async (req, res) => {
       const roleId = roleResults[0].role_id;
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      // 👉 IDINAGDAG ANG industry_assignment SA SQL AT VALUES
       const insertSql = `
         INSERT INTO users (
-          name, password, username, role_id, supervisor_id, style, google_form_url
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          name, password, username, role_id, supervisor_id, style, google_form_url, industry_assignment
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const params = [
-        name, hashedPassword, username, roleId, supervisor_id || null, style || 'Not Assessed', google_form_url || null
+        name, 
+        hashedPassword, 
+        username, 
+        roleId, 
+        supervisor_id || null, 
+        style || 'Not Assessed', 
+        google_form_url || null,
+        industry_assignment || null
       ];
 
       db.query(insertSql, params, (err, result) => {
@@ -82,7 +91,6 @@ app.post('/api/users', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 // ============================================================
 // API: LOGIN
 // ============================================================
@@ -93,8 +101,9 @@ app.post('/api/login', async (req, res) => {
         return res.status(400).json({ error: 'Username and password are required.' });
     }
 
+    
     const sql = `
-        SELECT u.id, u.name, u.username, u.password, u.role_id, r.role_name, u.supervisor_id
+        SELECT u.id, u.name, u.username, u.password, u.role_id, r.role_name AS role, u.supervisor_id, u.industry_assignment
         FROM users u
         INNER JOIN roles r ON u.role_id = r.role_id
         WHERE u.username = ? LIMIT 1
@@ -113,7 +122,12 @@ app.post('/api/login', async (req, res) => {
             res.json({
                 message: "Login successful",
                 user: {
-                    id: user.id, username: user.username, name: user.name, role: user.role_name, supervisor_id: user.supervisor_id
+                    id: user.id, 
+                    username: user.username, 
+                    name: user.name, 
+                    role: user.role, 
+                    supervisor_id: user.supervisor_id,
+                    industry_assignment: user.industry_assignment 
                 }
             });
         } catch (error) {
@@ -126,6 +140,7 @@ app.post('/api/login', async (req, res) => {
 // API: GET ALL USERS
 // ============================================================
 app.get('/api/users', (req, res) => {
+  
   const sql = `
     SELECT
       u.id, u.name, u.username, u.password, u.role_id, r.role_name AS role,
@@ -197,7 +212,8 @@ app.get('/api/trainee/:id', (req, res) => {
 // ============================================================
 app.put('/api/users/:id', async (req, res) => {
   const userId = req.params.id;
-  const { name, username, password, role, supervisor_id, google_form_url, style } = req.body;
+  // 👉 IDINAGDAG ANG industry_assignment
+  const { name, username, password, role, supervisor_id, google_form_url, style, industry_assignment } = req.body;
 
   if (!name || !username || !role) {
     return res.status(400).json({ error: 'Name, username and role are required.' });
@@ -214,21 +230,22 @@ app.put('/api/users/:id', async (req, res) => {
       let sql;
       let queryParams;
 
+      // 👉 IDINAGDAG ANG industry_assignment SA UPDATE QUERIES
       if (password && password.trim() !== "") {
         const hashedPassword = await bcrypt.hash(password, 10);
         sql = `
           UPDATE users 
-          SET name = ?, username = ?, password = ?, role = ?, role_id = ?, supervisor_id = ?, style = ?, google_form_url = ?
+          SET name = ?, username = ?, password = ?, role = ?, role_id = ?, supervisor_id = ?, style = ?, google_form_url = ?, industry_assignment = ?
           WHERE id = ?
         `;
-        queryParams = [name, username, hashedPassword, role, roleId, supervisor_id || null, style || 'Not Assessed', google_form_url || null, userId];
+        queryParams = [name, username, hashedPassword, role, roleId, supervisor_id || null, style || 'Not Assessed', google_form_url || null, industry_assignment || null, userId];
       } else {
         sql = `
           UPDATE users 
-          SET name = ?, username = ?, role = ?, role_id = ?, supervisor_id = ?, style = ?, google_form_url = ?
+          SET name = ?, username = ?, role = ?, role_id = ?, supervisor_id = ?, style = ?, google_form_url = ?, industry_assignment = ?
           WHERE id = ?
         `;
-        queryParams = [name, username, role, roleId, supervisor_id || null, style || 'Not Assessed', google_form_url || null, userId];
+        queryParams = [name, username, role, roleId, supervisor_id || null, style || 'Not Assessed', google_form_url || null, industry_assignment || null, userId];
       }
 
       db.query(sql, queryParams, (err, result) => {
@@ -296,4 +313,90 @@ app.post('/api/courses', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// ============================================================
+// API: SUPERVISOR DASHBOARD - EMPLOYEE HANDLE METRICS
+// ============================================================
+app.get('/api/supervisor/:id/metrics', (req, res) => {
+    const supervisorId = req.params.id;
+    
+    // Kunin ang total Active Trainees, at ang bilang ng Ongoing at Finished courses nila
+    const sql = `
+        SELECT 
+            (SELECT COUNT(*) FROM users WHERE supervisor_id = ?) AS active_trainees,
+            (SELECT COUNT(*) FROM enrollments e INNER JOIN users u ON e.user_id = u.id WHERE u.supervisor_id = ? AND e.progress < 100) AS ongoing_trainings,
+            (SELECT COUNT(*) FROM enrollments e INNER JOIN users u ON e.user_id = u.id WHERE u.supervisor_id = ? AND e.progress >= 100) AS finished_trainings
+    `;
+
+    db.query(sql, [supervisorId, supervisorId, supervisorId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results[0]);
+    });
+});
+
+// ============================================================
+// API: SUPERVISOR DASHBOARD - ENROLLED COURSES
+// ============================================================
+app.get('/api/supervisor/:id/enrolled', (req, res) => {
+    const supervisorId = req.params.id;
+    const sql = `
+        SELECT c.title, e.progress, e.status 
+        FROM enrollments e
+        INNER JOIN courses c ON e.course_id = c.course_id
+        WHERE e.user_id = ?
+    `;
+
+    db.query(sql, [supervisorId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// ============================================================
+// API: SUPERVISOR DASHBOARD - SUGGESTED COURSES & REQUESTS
+// ============================================================
+app.get('/api/courses/suggested/:department', (req, res) => {
+    const dept = req.params.department;
+    const sql = `SELECT course_id, title, description FROM courses WHERE department_target = ? OR department_target = 'ALL' LIMIT 4`;
+
+    db.query(sql, [dept], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+app.post('/api/supervisor/request-enroll', (req, res) => {
+    const { user_id, course_id } = req.body;
+    // Ilalagay ito sa enrollments table bilang 'Pending' request
+    const sql = `INSERT INTO enrollments (user_id, course_id, status, progress, date) VALUES (?, ?, 'Pending Request', 0, CURDATE())`;
+    
+    db.query(sql, [user_id, course_id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(201).json({ message: "Enrollment request submitted successfully!" });
+    });
+});
+
+// ============================================================
+// API: SUPERVISOR - GET ASSIGNED TRAINEES (EMPLOYEE REPORTS)
+// ============================================================
+app.get('/api/supervisor/:id/trainees', (req, res) => {
+    const supervisorId = req.params.id;
+    
+    const sql = `
+        SELECT 
+            u.id, 
+            u.name, 
+            u.industry_assignment, 
+            u.style, 
+            k.status AS kpi_status
+        FROM users u
+        LEFT JOIN kpi_agents k ON u.id = k.trainee_id
+        WHERE u.supervisor_id = ? AND u.role = 'Trainee'
+    `;
+
+    db.query(sql, [supervisorId], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
 });
